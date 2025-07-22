@@ -1,7 +1,6 @@
 {
   "name": "chatbot",
   "version": "1.0.0",
-  "type": "module",
   "description": "AI chat for customer service and sales agent",
   "main": "index.js",
   "scripts": {
@@ -23,6 +22,7 @@
   },
   "homepage": "https://github.com/spare8/chatbot#readme",
   "dependencies": {
+    "axios": "^1.10.0",
     "dotenv": "^17.2.0",
     "express": "^5.1.0",
     "openai": "^5.10.1"
