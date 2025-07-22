@@ -1,0 +1,89 @@
+{
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es2021": true,
+        "jest/globals": true
+    },
+    "extends": [
+        "google",
+        "plugin:import/recommended",
+        "eslint:recommended",
+        "plugin:node/recommended"
+    ],
+    "parserOptions": {
+        // 2022 is fully supported by node 18, 
+        // if we increase node version we can increment this
+        "ecmaVersion": 2022
+    },
+    "plugins": ["import", "jest"],
+    "globals": {
+        // This allows Global/NodeJs inbuilt variables to pass eslint undef check
+        "process": true,
+        "__dirname": true,
+        "Buffer": true
+    },
+    "overrides": [
+        {
+          "files": ["*.test.js", "__tests__/**/*.js"],
+          "rules": {
+            "node/no-unpublished-require": "off"
+          }
+        }
+    ],
+    "ignorePatterns": ["docs/", "node_modules"],
+    "rules": {
+        "no-undef": "error",
+        "max-len" : ["error", { "code": 120 }],
+        "no-caller": "error",
+        "no-shadow": "warn",
+        "curly": ["error", "all"],
+        "arrow-parens": ["error", "always"],
+        "no-confusing-arrow": ["error", {"allowParens": true}],
+        "no-unused-expressions": ["error", { "allowShortCircuit": true, "allowTernary": true }],
+        "require-jsdoc": ["off", {
+            "require": {
+                "FunctionDeclaration": false,
+                "MethodDefinition": false,
+                "ClassDeclaration": false,
+                "ArrowFunctionExpression": false,
+                "FunctionExpression": false
+            }
+        }],
+        "valid-jsdoc": "off",
+        "new-cap" : 0,
+        "import/no-unresolved": ["error", {"commonjs": true, "amd": true}],
+        "import/named": "error",
+        "import/namespace": "error",
+        "import/default": "error",
+        "import/export": "error",
+        "consistent-return": "error",
+        "require-await": "error",
+        "no-return-await": "error",
+        "no-process-env": "error",
+        "prefer-destructuring": ["warn", {"object": true, "array": true}],
+        "no-unused-vars": ["warn", { "args": "after-used", "ignoreRestSiblings": true }],
+        "no-dupe-keys": "error",
+        // "eqeqeq": ["error", "always"], // Enforces strict equality `===` and `!==` over `==` and `!=`
+        "no-implied-eval": "error", // Disallows the use of implicit `eval()` through `setTimeout()` and `setInterval()`
+        "no-redeclare": "error", // Disallows declaring the same variable more than once
+        "no-template-curly-in-string": "error", // Warns on template literal placeholder syntax in regular strings
+        "radix": "error", // Enforces providing a radix parameter when using `parseInt()`
+        "no-unsafe-negation": "error", // Prevents negating the left operand in `in` or `instanceof` expressions
+        "no-use-before-define": ["error", { "functions": false, "classes": true, "variables": true }], // Disallows the use of variables before they are defined
+        "no-eval": "error" // Disallows the use of `eval()`
+    }
+    // Additional plugin configurations and extensions commented out for gradual integration.
+    // "extends": [
+    //     "plugin:security/recommended",
+    //     "plugin:promise/recommended",
+    //     "plugin:node/recommended"
+    // ],
+    // "plugins": [
+    //     "security",
+    //     "promise",
+    //     "node"
+    // ]
+    // NOTE: When Adding above, dont forget to install , as below.
+    // npm install --save-dev eslint-plugin-security eslint-plugin-promise eslint-plugin-node
+}

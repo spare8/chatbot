@@ -1,0 +1,10 @@
+{
+    "*.ts": [
+      "prettier --write",
+      "eslint"
+    ],
+    "*.js": [
+        "./node_modules/.bin/eslint --fix -c ./config/.eslintrc.json"
+      ],
+    "*.scss": "prettier --write"
+  }
