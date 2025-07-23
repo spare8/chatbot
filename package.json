@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "npm run find-circular-deps && npm run depcheck",
+    "file-sync" : "node scripts/fileSync.js",
+    "file-validate": "node scripts/fileValidate.js",
     "start": "node app/index.js",
     "prepare": "husky install",
     "pre-commit": "lint-staged",

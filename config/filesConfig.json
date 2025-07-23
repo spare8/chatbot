@@ -1,0 +1,14 @@
+{
+  "test1.json": {
+    "id": "file-31cPoFjkwqyYShsp2pWE8B",
+    "hash": "bfccb6dd299895cf04c77de51453f01f55fea4ea38a56c650860125f9dffd6fe"
+  },
+  "test2.json": {
+    "id": "file-2SB89EVaDj1v7VQiyvNHT1",
+    "hash": "8eb48802ecaafc5a8e9c1ea75cf78f24a5f399aa3fa8bf87737d23b494a49634"
+  },
+  "test3.json": {
+    "id": "file-YYx4TXm9m27nM5pnziWsyu",
+    "hash": "40d39591aaa472eb4e16b34284e2412d2dcf420bf4b59de03b56e360cc9f3a2e"
+  }
+}

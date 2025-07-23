@@ -304,6 +304,170 @@ async function deleteMessage(threadId, messageId) {
   return null;
 }
 
+async function createVectorStore(name) {
+  if (!name) {
+    throw new Error('Vector store name is required');
+  }
+
+  try {
+    const response = await axios.post(
+        'https://api.openai.com/v1/vector_stores',
+        {name},
+        {headers: openAPIHeaders},
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error creating vector store:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
+
+async function listVectorStores(limit = 20) {
+  try {
+    const response = await axios.get(
+        `https://api.openai.com/v1/vector_stores?limit=${limit}`,
+        {headers: openAPIHeaders},
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error listing vector stores:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
+async function modifyVectorStore(vectorStoreId, metadata) {
+  if (!vectorStoreId || !metadata) {
+    throw new Error('vectorStoreId and metadata are required to modify a vector store');
+  }
+
+  try {
+    const response = await axios.post(
+        `https://api.openai.com/v1/vector_stores/${vectorStoreId}`,
+        {metadata},
+        {headers: openAPIHeaders},
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error modifying vector store:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
+async function deleteVectorStore(vectorStoreId) {
+  if (!vectorStoreId) {
+    throw new Error('vectorStoreId is required to delete a vector store');
+  }
+
+  try {
+    const response = await axios.delete(
+        `https://api.openai.com/v1/vector_stores/${vectorStoreId}`,
+        {headers: openAPIHeaders},
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error deleting vector store:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
+async function searchVectorStoreFiles(vectorStoreId) {
+  if (!vectorStoreId) {
+    throw new Error('vectorStoreId is required to list files in a vector store');
+  }
+
+  try {
+    const response = await axios.get(
+        `https://api.openai.com/v1/vector_stores/${vectorStoreId}/files`,
+        {headers: openAPIHeaders},
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error listing vector store files:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
+const fs = require('fs');
+// const path = require('path');
+// const FormData = require('form-data');
+
+async function uploadFileToOpenAI(filePath) {
+  const formData = new FormData();
+  formData.append('file', fs.createReadStream(filePath));
+  formData.append('purpose', 'assistants');
+
+  try {
+    const response = await axios.post(
+        'https://api.openai.com/v1/files',
+        formData,
+        {
+          headers: Object.assign({}, openAPIHeaders, formData.getHeaders()),
+        },
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error uploading file:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
+async function listAllFiles() {
+  try {
+    const response = await axios.get(
+        'https://api.openai.com/v1/files',
+        {headers: openAPIHeaders},
+    );
+    return response.data.data;
+  } catch (err) {
+    console.error('Error listing files:', err.response?.data || err.message);
+  }
+
+  return [];
+}
+
+async function retrieveFileById(fileId) {
+  if (!fileId) {
+    throw new Error('fileId is required to retrieve a file');
+  }
+
+  try {
+    const response = await axios.get(
+        `https://api.openai.com/v1/files/${fileId}`,
+        {headers: openAPIHeaders},
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error retrieving file:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
+async function deleteFileById(fileId) {
+  if (!fileId) {
+    throw new Error('fileId is required to delete a file');
+  }
+
+  try {
+    const response = await axios.delete(
+        `https://api.openai.com/v1/files/${fileId}`,
+        {headers: openAPIHeaders},
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error deleting file:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
 
 module.exports = {
   createAssistant,
@@ -321,4 +485,15 @@ module.exports = {
   retrieveMessage,
   modifyMessage,
   deleteMessage,
+  createVectorStore,
+  listVectorStores,
+  modifyVectorStore,
+  deleteVectorStore,
+  searchVectorStoreFiles,
+  uploadFileToOpenAI,
+  listAllFiles,
+  retrieveFileById,
+  deleteFileById,
+
+
 };
