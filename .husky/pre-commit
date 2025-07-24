@@ -1,3 +1,4 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
-npx lint-staged -c ./config/.lintstagedrc.json
+# npx lint-staged -c ./config/.lintstagedrc.json
+npm run pre-commit
