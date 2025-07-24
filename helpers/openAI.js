@@ -304,18 +304,18 @@ async function deleteMessage(threadId, messageId) {
   return null;
 }
 
-async function createVectorStore(name) {
-  if (!name) {
+async function createVectorStore({VSName}) {
+  if (!VSName) {
     throw new Error('Vector store name is required');
   }
 
   try {
     const response = await axios.post(
         'https://api.openai.com/v1/vector_stores',
-        {name},
+        {name: VSName},
         {headers: openAPIHeaders},
     );
-    return response.data;
+    return response.data.id;
   } catch (err) {
     console.error('Error creating vector store:', err.response?.data || err.message);
   }
@@ -494,6 +494,4 @@ module.exports = {
   listAllFiles,
   retrieveFileById,
   deleteFileById,
-
-
 };
