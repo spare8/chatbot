@@ -1,3 +1,6 @@
 node_modules/
 .env
 rawFiles/
+knowledgeBank/
+coverage-summary.json
+config/VSConfig.json
