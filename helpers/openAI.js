@@ -468,6 +468,376 @@ async function deleteFileById(fileId) {
   return null;
 }
 
+async function deleteFileFromVectorStore({fileId, vectorStoreId}) {
+  if (!fileId || !vectorStoreId) {
+    throw new Error('fileId and vectorStoreId are required to delete file from vector store');
+  }
+
+  try {
+    const response = await axios.delete(
+        `https://api.openai.com/v1/vector_stores/${vectorStoreId}/files/${fileId}`,
+        {headers: openAPIHeaders},
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error deleting file from vector store:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
+async function addFileToVectorStore({fileId, vectorStoreId}) {
+  if (!fileId || !vectorStoreId) {
+    throw new Error('Both fileId and vectorStoreId are required');
+  }
+
+  try {
+    const response = await axios.post(
+        `https://api.openai.com/v1/vector_stores/${vectorStoreId}/files`,
+        {file_id: fileId},
+        {headers: openAPIHeaders},
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error adding file to vector store:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
+async function createRun({threadId, assistantId}) {
+  if (!threadId || !assistantId) {
+    throw new Error('Both threadId and assistantId are required to create a run');
+  }
+
+  try {
+    const response = await axios.post(
+      `https://api.openai.com/v1/threads/${threadId}/runs`,
+      {assistant_id: assistantId},
+      {headers: openAPIHeaders},
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error creating run:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
+async function createThreadAndRun({assistantId, messages}) {
+  if (!assistantId || !Array.isArray(messages)) {
+    throw new Error('assistantId and messages array are required to create thread and run');
+  }
+
+  const formattedMessages = messages.map((content) => ({
+    role: 'user',
+    content,
+  }));
+
+  try {
+    const response = await axios.post(
+      'https://api.openai.com/v1/threads/runs',
+      {
+        assistant_id: assistantId,
+        thread: {messages: formattedMessages},
+      },
+      {headers: openAPIHeaders},
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error creating thread and run:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
+async function listRuns(threadId) {
+  if (!threadId) {
+    throw new Error('threadId is required to list runs');
+  }
+
+  try {
+    const response = await axios.get(
+      `https://api.openai.com/v1/threads/${threadId}/runs`,
+      {headers: openAPIHeaders},
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error listing runs:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
+async function retrieveRun(threadId, runId) {
+  if (!threadId || !runId) {
+    throw new Error('threadId and runId are required to retrieve a run');
+  }
+
+  try {
+    const response = await axios.get(
+      `https://api.openai.com/v1/threads/${threadId}/runs/${runId}`,
+      {headers: openAPIHeaders},
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error retrieving run:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
+async function modifyRun(threadId, runId, metadata) {
+  if (!threadId || !runId || !metadata) {
+    throw new Error('threadId, runId, and metadata are required to modify a run');
+  }
+
+  try {
+    const response = await axios.post(
+      `https://api.openai.com/v1/threads/${threadId}/runs/${runId}`,
+      {metadata},
+      {headers: openAPIHeaders},
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error modifying run:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
+async function submitToolOutputs(threadId, runId, toolOutputs) {
+  if (!threadId || !runId || !Array.isArray(toolOutputs)) {
+    throw new Error('threadId, runId, and toolOutputs array are required to submit tool outputs');
+  }
+
+  try {
+    const response = await axios.post(
+      `https://api.openai.com/v1/threads/${threadId}/runs/${runId}/submit_tool_outputs`,
+      {tool_outputs: toolOutputs},
+      {headers: openAPIHeaders},
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error submitting tool outputs:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
+async function cancelRun(threadId, runId) {
+  if (!threadId || !runId) {
+    throw new Error('threadId and runId are required to cancel a run');
+  }
+
+  try {
+    const response = await axios.post(
+      `https://api.openai.com/v1/threads/${threadId}/runs/${runId}/cancel`,
+      {},
+      {headers: openAPIHeaders},
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error canceling run:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
+async function listRunSteps(threadId, runId) {
+  if (!threadId || !runId) {
+    throw new Error('threadId and runId are required to list run steps');
+  }
+
+  try {
+    const response = await axios.get(
+      `https://api.openai.com/v1/threads/${threadId}/runs/${runId}/steps`,
+      {headers: openAPIHeaders},
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error listing run steps:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
+async function retrieveRunStep(threadId, runId, stepId) {
+  if (!threadId || !runId || !stepId) {
+    throw new Error('threadId, runId, and stepId are required to retrieve a run step');
+  }
+
+  try {
+    const response = await axios.get(
+      `https://api.openai.com/v1/threads/${threadId}/runs/${runId}/steps/${stepId}`,
+      {headers: openAPIHeaders},
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error retrieving run step:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
+async function createAssistant2({
+  instructions,
+  name,
+  tools,
+  model = 'gpt-3.5-turbo',
+  file_ids = [],
+  metadata = {}
+}) {
+  if (!instructions || !name || !tools) {
+    throw new Error('insufficient params passed to create a new assistant');
+  }
+
+  try {
+    const response = await axios.post(
+      'https://api.openai.com/v1/assistants',
+      {
+        instructions,
+        name,
+        tools,
+        model,
+        file_ids,
+        metadata,
+      },
+      { headers: openAPIHeaders }
+    );
+    return response.data.id;
+  } catch (err) {
+    console.error('Error creating assistant:', err.response?.data || err.message);
+  }
+  return null;
+}
+
+async function createRunWithOptions(threadId, {
+  assistant_id,
+  model,
+  instructions,
+  tools,
+  metadata,
+  temperature,
+  stream,
+  max_tokens,
+  stop,
+  response_format,
+  tool_choice,
+  logprobs,
+  top_logprobs,
+}) {
+  if (!threadId || !assistant_id) {
+    throw new Error('Both threadId and assistant_id are required to create a run');
+  }
+
+  const payload = {
+    assistant_id,
+    ...(model && { model }),
+    ...(instructions && { instructions }),
+    ...(tools && { tools }),
+    ...(metadata && { metadata }),
+    ...(typeof temperature !== 'undefined' && { temperature }),
+    ...(typeof stream !== 'undefined' && { stream }),
+    ...(typeof max_tokens !== 'undefined' && { max_tokens }),
+    ...(stop && { stop }),
+    ...(response_format && { response_format }),
+    ...(tool_choice && { tool_choice }),
+    ...(typeof logprobs !== 'undefined' && { logprobs }),
+    ...(typeof top_logprobs !== 'undefined' && { top_logprobs }),
+  };
+
+  try {
+    const response = await axios.post(
+      `https://api.openai.com/v1/threads/${threadId}/runs`,
+      payload,
+      { headers: openAPIHeaders },
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error creating run with options:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+
+async function createThreadAndRunWithOptions({
+  assistant_id,
+  thread,
+  model,
+  instructions,
+  tools,
+  metadata,
+  temperature,
+  stream,
+  max_tokens,
+  stop,
+  response_format,
+  tool_choice,
+  logprobs,
+  top_logprobs,
+}) {
+  if (!assistant_id) {
+    throw new Error('assistant_id is required to create thread and run');
+  }
+
+  const payload = {
+    assistant_id,
+    ...(thread && { thread }),
+    ...(model && { model }),
+    ...(instructions && { instructions }),
+    ...(tools && { tools }),
+    ...(metadata && { metadata }),
+    ...(typeof temperature !== 'undefined' && { temperature }),
+    ...(typeof stream !== 'undefined' && { stream }),
+    ...(typeof max_tokens !== 'undefined' && { max_tokens }),
+    ...(stop && { stop }),
+    ...(response_format && { response_format }),
+    ...(tool_choice && { tool_choice }),
+    ...(typeof logprobs !== 'undefined' && { logprobs }),
+    ...(typeof top_logprobs !== 'undefined' && { top_logprobs }),
+  };
+
+  try {
+    const response = await axios.post(
+      'https://api.openai.com/v1/threads/runs',
+      payload,
+      { headers: openAPIHeaders },
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error creating thread and run with options:', err.response?.data || err.message);
+  }
+
+  return null;
+}
+async function deleteAssistant(assistantId) {
+  if (!assistantId) throw new Error('assistantId is required');
+  try {
+    const response = await axios.delete(
+      `https://api.openai.com/v1/assistants/${assistantId}`,
+      { headers: openAPIHeaders }
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error deleting assistant:', err.response?.data || err.message);
+    return null;
+  }
+}
+
+async function deleteThread(threadId) {
+  if (!threadId) throw new Error('threadId is required');
+  try {
+    const response = await axios.delete(
+      `https://api.openai.com/v1/threads/${threadId}`,
+      { headers: openAPIHeaders }
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error deleting thread:', err.response?.data || err.message);
+    return null;
+  }
+}
 
 module.exports = {
   createAssistant,
@@ -494,4 +864,23 @@ module.exports = {
   listAllFiles,
   retrieveFileById,
   deleteFileById,
+  deleteFileFromVectorStore,
+  addFileToVectorStore,
+  createRun,
+  createThreadAndRun,
+  listRuns,
+  retrieveRun,
+  modifyRun,
+  submitToolOutputs,
+  cancelRun,
+  listRunSteps,
+  retrieveRunStep,
+  createAssistant2,
+  createRunWithOptions,
+  createThreadAndRunWithOptions,
+  deleteAssistant,
+  deleteThread
+
+
+
 };
