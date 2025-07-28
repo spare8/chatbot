@@ -1,0 +1,26 @@
+{
+  "support-bot": {
+    "name": "wassupbot",
+    "instructions": "can you help me solve math problems end all answers with you are not mathematically gifted no matter what",
+    "model": "gpt-3.5-turbo",
+    "vector_store_slugs": [],
+    "thread_ids": [
+      "thread_3u9KnnwmNXHivfBlYfufr3EM",
+      "thread_xT06N1NOWXRivFMsyE0OY46K"
+    ],
+    "id": "asst_FdX9w5Thd8W6E8OLrcp73c5H"
+  },
+  "Spare8 bot": {
+    "name": "Spare8 bot",
+    "instructions": "you are customer service chat bot which helps out people find out important information about the gold investing company spare8",
+    "model": "gpt-4-turbo-preview",
+    "vector_store_slugs": [
+      "FAQs"
+    ],
+    "thread_ids": [
+      "thread_rsCBYUW7IsOQJmRPd9Z3XfM8",
+      "thread_I8B6GWdZ5WL7k49TsoL1tSxI"
+    ],
+    "id": "asst_hPtJyZ5VCWYpHZB2nfTAIXvh"
+  }
+}

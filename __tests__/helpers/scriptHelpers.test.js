@@ -1,6 +1,7 @@
 const fs = require('fs');
 const crypto = require('crypto');
-const {isVSInConfig, createEmptyVS, fileHash, addFile, deleteFile, getVectorStoreFolderNames, deleteMissingVectorStoresFromConfig} = require('../../helpers/scriptHelpers');
+const {isVSInConfig, createEmptyVS, fileHash, addFile, deleteFile, getVectorStoreFolderNames,
+  deleteMissingVectorStoresFromConfig} = require('../../helpers/scriptHelpers');
 const {createVectorStore, addFileToVectorStore, uploadFileToOpenAI,
   deleteFileById, deleteFileFromVectorStore, deleteVectorStore} = require('../../helpers/openAI');
 

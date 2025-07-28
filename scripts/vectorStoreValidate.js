@@ -26,12 +26,12 @@ async function loadVSConfig() {
 async function validateVectorStores() {
   const config = await loadVSConfig();
 
-  const configVSIds = new Set(Object.values(config).map(vs => vs.id));
+  const configVSIds = new Set(Object.values(config).map((vs) => vs.id));
   const configFileIds = new Map();
 
   for (const [VSName, entry] of Object.entries(config)) {
     for (const [fileName, fileInfo] of Object.entries(entry.files || {})) {
-      configFileIds.set(fileInfo.id, { VSName, fileName });
+      configFileIds.set(fileInfo.id, {VSName, fileName});
     }
   }
 

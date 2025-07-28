@@ -512,9 +512,9 @@ async function createRun({threadId, assistantId}) {
 
   try {
     const response = await axios.post(
-      `https://api.openai.com/v1/threads/${threadId}/runs`,
-      {assistant_id: assistantId},
-      {headers: openAPIHeaders},
+        `https://api.openai.com/v1/threads/${threadId}/runs`,
+        {assistant_id: assistantId},
+        {headers: openAPIHeaders},
     );
     return response.data;
   } catch (err) {
@@ -536,12 +536,12 @@ async function createThreadAndRun({assistantId, messages}) {
 
   try {
     const response = await axios.post(
-      'https://api.openai.com/v1/threads/runs',
-      {
-        assistant_id: assistantId,
-        thread: {messages: formattedMessages},
-      },
-      {headers: openAPIHeaders},
+        'https://api.openai.com/v1/threads/runs',
+        {
+          assistant_id: assistantId,
+          thread: {messages: formattedMessages},
+        },
+        {headers: openAPIHeaders},
     );
     return response.data;
   } catch (err) {
@@ -558,8 +558,8 @@ async function listRuns(threadId) {
 
   try {
     const response = await axios.get(
-      `https://api.openai.com/v1/threads/${threadId}/runs`,
-      {headers: openAPIHeaders},
+        `https://api.openai.com/v1/threads/${threadId}/runs`,
+        {headers: openAPIHeaders},
     );
     return response.data;
   } catch (err) {
@@ -576,8 +576,8 @@ async function retrieveRun(threadId, runId) {
 
   try {
     const response = await axios.get(
-      `https://api.openai.com/v1/threads/${threadId}/runs/${runId}`,
-      {headers: openAPIHeaders},
+        `https://api.openai.com/v1/threads/${threadId}/runs/${runId}`,
+        {headers: openAPIHeaders},
     );
     return response.data;
   } catch (err) {
@@ -594,9 +594,9 @@ async function modifyRun(threadId, runId, metadata) {
 
   try {
     const response = await axios.post(
-      `https://api.openai.com/v1/threads/${threadId}/runs/${runId}`,
-      {metadata},
-      {headers: openAPIHeaders},
+        `https://api.openai.com/v1/threads/${threadId}/runs/${runId}`,
+        {metadata},
+        {headers: openAPIHeaders},
     );
     return response.data;
   } catch (err) {
@@ -613,9 +613,9 @@ async function submitToolOutputs(threadId, runId, toolOutputs) {
 
   try {
     const response = await axios.post(
-      `https://api.openai.com/v1/threads/${threadId}/runs/${runId}/submit_tool_outputs`,
-      {tool_outputs: toolOutputs},
-      {headers: openAPIHeaders},
+        `https://api.openai.com/v1/threads/${threadId}/runs/${runId}/submit_tool_outputs`,
+        {tool_outputs: toolOutputs},
+        {headers: openAPIHeaders},
     );
     return response.data;
   } catch (err) {
@@ -632,9 +632,9 @@ async function cancelRun(threadId, runId) {
 
   try {
     const response = await axios.post(
-      `https://api.openai.com/v1/threads/${threadId}/runs/${runId}/cancel`,
-      {},
-      {headers: openAPIHeaders},
+        `https://api.openai.com/v1/threads/${threadId}/runs/${runId}/cancel`,
+        {},
+        {headers: openAPIHeaders},
     );
     return response.data;
   } catch (err) {
@@ -651,8 +651,8 @@ async function listRunSteps(threadId, runId) {
 
   try {
     const response = await axios.get(
-      `https://api.openai.com/v1/threads/${threadId}/runs/${runId}/steps`,
-      {headers: openAPIHeaders},
+        `https://api.openai.com/v1/threads/${threadId}/runs/${runId}/steps`,
+        {headers: openAPIHeaders},
     );
     return response.data;
   } catch (err) {
@@ -669,8 +669,8 @@ async function retrieveRunStep(threadId, runId, stepId) {
 
   try {
     const response = await axios.get(
-      `https://api.openai.com/v1/threads/${threadId}/runs/${runId}/steps/${stepId}`,
-      {headers: openAPIHeaders},
+        `https://api.openai.com/v1/threads/${threadId}/runs/${runId}/steps/${stepId}`,
+        {headers: openAPIHeaders},
     );
     return response.data;
   } catch (err) {
@@ -683,34 +683,36 @@ async function retrieveRunStep(threadId, runId, stepId) {
 async function createAssistant2({
   instructions,
   name,
-  tools,
+  tools = [],
   model = 'gpt-3.5-turbo',
-  file_ids = [],
-  metadata = {}
+  tool_resources,
+  metadata = {},
 }) {
-  if (!instructions || !name || !tools) {
-    throw new Error('insufficient params passed to create a new assistant');
+  if (!instructions || !name || !Array.isArray(tools)) {
+    throw new Error('insufficient or invalid params passed to create a new assistant');
   }
 
   try {
     const response = await axios.post(
-      'https://api.openai.com/v1/assistants',
-      {
-        instructions,
-        name,
-        tools,
-        model,
-        file_ids,
-        metadata,
-      },
-      { headers: openAPIHeaders }
+        'https://api.openai.com/v1/assistants',
+        {
+          instructions,
+          name,
+          model,
+          tools,
+          ...(tool_resources && {tool_resources}),
+          ...(metadata && Object.keys(metadata).length > 0 && {metadata}),
+        },
+        {headers: openAPIHeaders},
     );
     return response.data.id;
   } catch (err) {
     console.error('Error creating assistant:', err.response?.data || err.message);
   }
+
   return null;
 }
+
 
 async function createRunWithOptions(threadId, {
   assistant_id,
@@ -733,25 +735,25 @@ async function createRunWithOptions(threadId, {
 
   const payload = {
     assistant_id,
-    ...(model && { model }),
-    ...(instructions && { instructions }),
-    ...(tools && { tools }),
-    ...(metadata && { metadata }),
-    ...(typeof temperature !== 'undefined' && { temperature }),
-    ...(typeof stream !== 'undefined' && { stream }),
-    ...(typeof max_tokens !== 'undefined' && { max_tokens }),
-    ...(stop && { stop }),
-    ...(response_format && { response_format }),
-    ...(tool_choice && { tool_choice }),
-    ...(typeof logprobs !== 'undefined' && { logprobs }),
-    ...(typeof top_logprobs !== 'undefined' && { top_logprobs }),
+    ...(model && {model}),
+    ...(instructions && {instructions}),
+    ...(tools && {tools}),
+    ...(metadata && {metadata}),
+    ...(typeof temperature !== 'undefined' && {temperature}),
+    ...(typeof stream !== 'undefined' && {stream}),
+    ...(typeof max_tokens !== 'undefined' && {max_tokens}),
+    ...(stop && {stop}),
+    ...(response_format && {response_format}),
+    ...(tool_choice && {tool_choice}),
+    ...(typeof logprobs !== 'undefined' && {logprobs}),
+    ...(typeof top_logprobs !== 'undefined' && {top_logprobs}),
   };
 
   try {
     const response = await axios.post(
-      `https://api.openai.com/v1/threads/${threadId}/runs`,
-      payload,
-      { headers: openAPIHeaders },
+        `https://api.openai.com/v1/threads/${threadId}/runs`,
+        payload,
+        {headers: openAPIHeaders},
     );
     return response.data;
   } catch (err) {
@@ -783,26 +785,26 @@ async function createThreadAndRunWithOptions({
 
   const payload = {
     assistant_id,
-    ...(thread && { thread }),
-    ...(model && { model }),
-    ...(instructions && { instructions }),
-    ...(tools && { tools }),
-    ...(metadata && { metadata }),
-    ...(typeof temperature !== 'undefined' && { temperature }),
-    ...(typeof stream !== 'undefined' && { stream }),
-    ...(typeof max_tokens !== 'undefined' && { max_tokens }),
-    ...(stop && { stop }),
-    ...(response_format && { response_format }),
-    ...(tool_choice && { tool_choice }),
-    ...(typeof logprobs !== 'undefined' && { logprobs }),
-    ...(typeof top_logprobs !== 'undefined' && { top_logprobs }),
+    ...(thread && {thread}),
+    ...(model && {model}),
+    ...(instructions && {instructions}),
+    ...(tools && {tools}),
+    ...(metadata && {metadata}),
+    ...(typeof temperature !== 'undefined' && {temperature}),
+    ...(typeof stream !== 'undefined' && {stream}),
+    ...(typeof max_tokens !== 'undefined' && {max_tokens}),
+    ...(stop && {stop}),
+    ...(response_format && {response_format}),
+    ...(tool_choice && {tool_choice}),
+    ...(typeof logprobs !== 'undefined' && {logprobs}),
+    ...(typeof top_logprobs !== 'undefined' && {top_logprobs}),
   };
 
   try {
     const response = await axios.post(
-      'https://api.openai.com/v1/threads/runs',
-      payload,
-      { headers: openAPIHeaders },
+        'https://api.openai.com/v1/threads/runs',
+        payload,
+        {headers: openAPIHeaders},
     );
     return response.data;
   } catch (err) {
@@ -812,11 +814,13 @@ async function createThreadAndRunWithOptions({
   return null;
 }
 async function deleteAssistant(assistantId) {
-  if (!assistantId) throw new Error('assistantId is required');
+  if (!assistantId) {
+    throw new Error('assistantId is required');
+  }
   try {
     const response = await axios.delete(
-      `https://api.openai.com/v1/assistants/${assistantId}`,
-      { headers: openAPIHeaders }
+        `https://api.openai.com/v1/assistants/${assistantId}`,
+        {headers: openAPIHeaders},
     );
     return response.data;
   } catch (err) {
@@ -826,11 +830,13 @@ async function deleteAssistant(assistantId) {
 }
 
 async function deleteThread(threadId) {
-  if (!threadId) throw new Error('threadId is required');
+  if (!threadId) {
+    throw new Error('threadId is required');
+  }
   try {
     const response = await axios.delete(
-      `https://api.openai.com/v1/threads/${threadId}`,
-      { headers: openAPIHeaders }
+        `https://api.openai.com/v1/threads/${threadId}`,
+        {headers: openAPIHeaders},
     );
     return response.data;
   } catch (err) {
@@ -879,8 +885,7 @@ module.exports = {
   createRunWithOptions,
   createThreadAndRunWithOptions,
   deleteAssistant,
-  deleteThread
-
+  deleteThread,
 
 
 };

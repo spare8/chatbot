@@ -14,7 +14,9 @@
     "depcheck": "depcheck",
     "find-circular-deps": "madge --circular helpers",
     "vector-store-sync": "node scripts/vectorstoreSync.js",
-    "ass-create": "node scripts/assistantCreateAndRun.js"
+    "ass-create": "node scripts/assistantChat.js support-bot",
+    "ass-sync": "node scripts/assistantSync.js",
+    "ass-validate": "node scripts/assistantValidate.js"
   },
   "repository": {
     "type": "git",

@@ -15,7 +15,7 @@ function promptInput(query) {
     input: process.stdin,
     output: process.stdout,
   });
-  return new Promise(resolve => rl.question(query, ans => {
+  return new Promise((resolve) => rl.question(query, (ans) => {
     rl.close();
     resolve(ans.trim());
   }));
@@ -26,9 +26,13 @@ async function waitForRunCompletion(threadId, runId) {
   while (status === 'in_progress' || status === 'queued') {
     const run = await retrieveRun(threadId, runId);
     status = run.status;
-    if (status === 'completed') return;
-    if (status === 'failed') throw new Error(`Run failed: ${run.last_error?.message}`);
-    await new Promise(res => setTimeout(res, 1500));
+    if (status === 'completed') {
+      return;
+    }
+    if (status === 'failed') {
+      throw new Error(`Run failed: ${run.last_error?.message}`);
+    }
+    await new Promise((res) => setTimeout(res, 1500));
   }
 }
 
@@ -43,10 +47,10 @@ async function waitForRunCompletion(threadId, runId) {
     const assistant = await createAssistant({
       name,
       instructions,
-      tools: vectorStoreId ? [{ type: 'file_search' }] : [],
+      tools: vectorStoreId ? [{type: 'file_search'}] : [],
       model: 'gpt-3.5-turbo',
       file_ids: [],
-      tool_resources: vectorStoreId ? { file_search: { vector_store_ids: [vectorStoreId] } } : undefined,
+      tool_resources: vectorStoreId ? {file_search: {vector_store_ids: [vectorStoreId]}} : undefined,
     });
 
     if (!assistant) {
@@ -71,16 +75,15 @@ async function waitForRunCompletion(threadId, runId) {
       }
 
       await createUserMessage(threadId, userInput);
-      const run = await createRun({ threadId, assistantId: assistant });
+      const run = await createRun({threadId, assistantId: assistant});
       await waitForRunCompletion(threadId, run.id);
 
       const messages = await listMessagesInThread(threadId);
-      const reply = messages.data.find(msg => msg.role === 'assistant');
+      const reply = messages.data.find((msg) => msg.role === 'assistant');
       const text = reply?.content?.[0]?.text?.value || '[No response]';
 
       console.log(`Assistant: ${text}`);
     }
-
   } catch (err) {
     console.error('Error:', err.message);
   }
