@@ -304,16 +304,32 @@ async function deleteMessage(threadId, messageId) {
   return null;
 }
 
-async function createVectorStore({VSName}) {
+
+
+
+
+async function createVectorStore({ VSName }) {
   if (!VSName) {
     throw new Error('Vector store name is required');
   }
 
+  const payload = {
+    name: VSName,
+    description: 'Vector store with optimized static chunking',
+    chunking_strategy: {
+      type: 'static',
+      static: {
+        max_chunk_size_tokens: 300,     
+        chunk_overlap_tokens: 40       
+      }
+    }
+  };
+
   try {
     const response = await axios.post(
-        'https://api.openai.com/v1/vector_stores',
-        {name: VSName},
-        {headers: openAPIHeaders},
+      'https://api.openai.com/v1/vector_stores',
+      payload,
+      { headers: openAPIHeaders }
     );
     return response.data.id;
   } catch (err) {
@@ -322,6 +338,7 @@ async function createVectorStore({VSName}) {
 
   return null;
 }
+
 
 
 async function listVectorStores(limit = 20) {
@@ -395,7 +412,7 @@ async function searchVectorStoreFiles(vectorStoreId) {
 
 const fs = require('fs');
 // const path = require('path');
-// const FormData = require('form-data');
+const FormData = require('form-data');
 
 async function uploadFileToOpenAI(filePath) {
   const formData = new FormData();
@@ -741,6 +758,7 @@ async function createRunWithOptions(threadId, {
     ...(metadata && {metadata}),
     ...(typeof temperature !== 'undefined' && {temperature}),
     ...(typeof stream !== 'undefined' && {stream}),
+    // ...(typeof max_tokens !== 'undefined' && max_tokens {max_tokens:Math.min(max_tokens, 1024)}), 
     ...(typeof max_tokens !== 'undefined' && {max_tokens}),
     ...(stop && {stop}),
     ...(response_format && {response_format}),
@@ -765,12 +783,13 @@ async function createRunWithOptions(threadId, {
 
 async function createThreadAndRunWithOptions({
   assistant_id,
-  thread,
+  thread,        // { messages: [...] }
   model,
   instructions,
   tools,
   metadata,
   temperature,
+  top_p,         // ← NEW!
   stream,
   max_tokens,
   stop,
@@ -785,34 +804,38 @@ async function createThreadAndRunWithOptions({
 
   const payload = {
     assistant_id,
-    ...(thread && {thread}),
-    ...(model && {model}),
-    ...(instructions && {instructions}),
-    ...(tools && {tools}),
-    ...(metadata && {metadata}),
-    ...(typeof temperature !== 'undefined' && {temperature}),
-    ...(typeof stream !== 'undefined' && {stream}),
-    ...(typeof max_tokens !== 'undefined' && {max_tokens}),
-    ...(stop && {stop}),
-    ...(response_format && {response_format}),
-    ...(tool_choice && {tool_choice}),
-    ...(typeof logprobs !== 'undefined' && {logprobs}),
-    ...(typeof top_logprobs !== 'undefined' && {top_logprobs}),
+    ...(thread          && { thread }),
+    ...(model           && { model }),
+    ...(instructions    && { instructions }),
+    ...(tools           && { tools }),
+    ...(metadata        && { metadata }),
+    ...(typeof temperature !== 'undefined' && { temperature }),
+    ...(typeof top_p       !== 'undefined' && { top_p       }), // ← include top_p
+    ...(typeof stream      !== 'undefined' && { stream      }),
+    ...(typeof max_tokens  !== 'undefined' && { max_tokens: Math.min(max_tokens, 1024) }),
+    ...(stop            && { stop }),
+    ...(response_format && { response_format }),
+    ...(tool_choice     && { tool_choice }),
+    ...(typeof logprobs     !== 'undefined' && { logprobs     }),
+    ...(typeof top_logprobs !== 'undefined' && { top_logprobs }),
   };
 
   try {
     const response = await axios.post(
-        'https://api.openai.com/v1/threads/runs',
-        payload,
-        {headers: openAPIHeaders},
+      'https://api.openai.com/v1/threads/runs',
+      payload,
+      { headers: openAPIHeaders }
     );
     return response.data;
   } catch (err) {
-    console.error('Error creating thread and run with options:', err.response?.data || err.message);
+    console.error(
+      'Error creating thread and run with options:',
+      err.response?.data || err.message
+    );
   }
-
   return null;
 }
+
 async function deleteAssistant(assistantId) {
   if (!assistantId) {
     throw new Error('assistantId is required');
