@@ -11,7 +11,7 @@ const {
 
 const ASSISTANT_CONFIG_PATH = path.join(__dirname, '..', 'config', 'assistantConfig.json');
 const VS_CONFIG_PATH = path.join(__dirname, '..', 'config', 'VSConfig.json');
-const { schema: escalateSchema } = require('./escalateTool');
+const {schema: escalateSchema} = require('./escalateTool');
 
 
 // ─────────────────────────────────────────────
@@ -43,17 +43,17 @@ async function createOrUpdateAssistant(slug, assistantObj) {
   const resolvedVSIds = resolveVectorStoreIds(assistantObj.vector_store_slugs || [], vsConfig);
 
   const payload = {
-  name: assistantObj.name,
-  instructions: assistantObj.instructions,
-  model: assistantObj.model,
-  tools: [
-    ...(resolvedVSIds.length > 0 ? [{ type: 'file_search' }] : []),
-    { type: 'function', function: escalateSchema.function }, // ✅ REGISTER TOOL
-  ],
-  tool_resources: resolvedVSIds.length > 0
-    ? { file_search: { vector_store_ids: resolvedVSIds } }
-    : undefined,
-};
+    name: assistantObj.name,
+    instructions: assistantObj.instructions,
+    model: assistantObj.model,
+    tools: [
+      ...(resolvedVSIds.length > 0 ? [{type: 'file_search'}] : []),
+      {type: 'function', function: escalateSchema.function}, // ✅ REGISTER TOOL
+    ],
+    tool_resources: resolvedVSIds.length > 0 ?
+    {file_search: {vector_store_ids: resolvedVSIds}} :
+    undefined,
+  };
 
 
   if (!assistantObj.id) {

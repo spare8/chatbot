@@ -7,7 +7,7 @@ const {
 } = require('../helpers/openAI'); // make sure this points to your helper file
 
 const axios = require('axios');
-const { OPEN_AI_API_TOKEN } = require('../config/config');
+const {OPEN_AI_API_TOKEN} = require('../config/config');
 
 const openAPIHeaders = {
   'Content-Type': 'application/json',
@@ -16,11 +16,13 @@ const openAPIHeaders = {
 };
 
 async function retrieveVectorStoreFile(fileId) {
-  if (!fileId) return null;
+  if (!fileId) {
+    return null;
+  }
   try {
     const response = await axios.get(
-      `https://api.openai.com/v1/vector_store_files/${fileId}`,
-      { headers: openAPIHeaders }
+        `https://api.openai.com/v1/vector_store_files/${fileId}`,
+        {headers: openAPIHeaders},
     );
     return response.data;
   } catch (err) {

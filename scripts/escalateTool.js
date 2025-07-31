@@ -1,6 +1,6 @@
 // tools/escalateTool.js
 
-async function escalateToHuman({ issue_description }) {
+async function escalateToHuman({issue_description}) {
   console.log('🚨 escalateToHuman CALLED with:', issue_description);
   return {
     status: 'success',
