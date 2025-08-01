@@ -1,7 +1,11 @@
 node_modules/
 .env
+.env_dev
+.env_local
+.env_prod
 rawFiles/
 knowledgeBank/
 coverage-summary.json
 config/VSConfig.json
 config/assistantConfig.json
+.next
