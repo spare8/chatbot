@@ -62,7 +62,7 @@ describe('vectorStoreValidate.js', () => {
     });
 
     searchVectorStoreFiles.mockImplementation(async (vsId) => {
-       await new Promise((resolve) => setTimeout(resolve, 100)); // Simulate async delay 
+      await new Promise((resolve) => setTimeout(resolve, 100)); // Simulate async delay
       if (vsId === 'vs_1') {
         return {data: [{id: 'file_a'}]}; // file_b missing
       }
