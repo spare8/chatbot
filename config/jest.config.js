@@ -25,13 +25,16 @@ const config = {
   collectCoverageFrom: [
     'helpers/**/*.js',
     'scripts/**/*.js',
+    'server/**/*.js',
   ],
 
   // The directory where Jest should output its coverage files
   coverageDirectory: 'coverage',
 
   // An array of regexp pattern strings used to skip coverage collection
-  coveragePathIgnorePatterns: [],
+  coveragePathIgnorePatterns: [
+    '/models/.*\\.js$',
+  ],
 
   // Indicates which provider should be used to instrument code for coverage
   coverageProvider: 'v8',
@@ -166,7 +169,10 @@ const config = {
   // ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  testPathIgnorePatterns: [],
+  testPathIgnorePatterns: [
+    '<rootDir>/__tests__/setupTests.js',
+    '<rootDir>/__tests__/testUtils.js',
+  ],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files
   // testRegex: [],
