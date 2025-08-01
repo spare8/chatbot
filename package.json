@@ -8,7 +8,7 @@
     "file-sync": "node scripts/vectorstoreSync.js",
     "file-validate": "node scripts/vectorStoreValidate.js",
     "start": "node app/index.js",
-    "prepare": "husky install",
+    "prepare": "husky install && chmod +x .husky/pre-commit",
     "pre-commit": "lint-staged && npm run find-circular-deps && npm run depcheck && npm run test",
     "lint": "eslint --fix . -c ./config/.eslintrc.json",
     "depcheck": "depcheck",
