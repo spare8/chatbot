@@ -1,13 +1,22 @@
 // pages/index.js
+import Link from 'next/link';
+
 export default function Home() {
   return (
-    <div style={{ padding: 20 }}>
+    <div style={{ padding: 20, textAlign: 'center' }}>
       <h1>Chatbot Management</h1>
-      <p>
-        • Frontend: Next.js<br/>
-        • Backend: Express + MongoDB
-      </p>
-      <p>Try your API: <a href="http://localhost:3000/api/health" target="_blank">/api/health</a></p>
+      <div style={{ marginTop: 20, display: 'flex', justifyContent: 'center', gap: '1rem' }}>
+        <Link href="/admin/assistants">
+          <button style={{ padding: '0.5rem 1rem', fontSize: '1rem' }}>
+            Manage Assistants
+          </button>
+        </Link>
+        <Link href="/admin/vector-stores">
+          <button style={{ padding: '0.5rem 1rem', fontSize: '1rem' }}>
+            Manage Vector Stores
+          </button>
+        </Link>
+      </div>
     </div>
-  );
+);
 }
