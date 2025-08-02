@@ -6,11 +6,11 @@ const Assistants = require('../../models/assistant');
  * @param {Object} data - Assistant properties
  * @returns {Promise<Object>} - Created assistant document
  */
-function createAssistant({name, description, instructions, model, vectorStoreId, openaiId}) {
+async function createAssistant({name, description, instructions, model, vectorStoreId, openaiId}) {
   if (!name || !model || !openaiId) {
-    throw new Error('Name and model are required to create an assistant');
+    throw new Error('Name, model and openaiId are required to create an assistant');
   }
-  return Assistants.create({
+  return await Assistants.create({
     name, description, instructions, model, vectorStoreId, openaiId,
   });
 }
@@ -20,16 +20,16 @@ function createAssistant({name, description, instructions, model, vectorStoreId,
  * @param {String} id - Assistant ObjectId
  * @returns {Promise<Object|null>} - Found assistant or null
  */
-function getAssistantById({assistantId}) {
-  return Assistants.findById(assistantId);
+async function getAssistantById({assistantId}) {
+  return await Assistants.findById(assistantId);
 }
 
 /**
  * Retrieve all assistants
  * @returns {Promise<Array>} - Array of assistant documents
  */
-function getAllAssistants() {
-  return Assistants.find({isDeleted: {$ne: true}});
+async function getAllAssistants() {
+  return await Assistants.find({isDeleted: {$ne: true}});
 }
 
 /**
@@ -38,8 +38,8 @@ function getAllAssistants() {
  * @param {Object} data - Fields to update
  * @returns {Promise<Object|null>} - Updated assistant or null
  */
-function updateAssistant({assistantId, name, description, instructions, model, vectorStoreId}) {
-  return Assistants.findByIdAndUpdate(assistantId, {name, description, instructions, model, vectorStoreId}, {new: true});
+async function updateAssistant({assistantId, name, description, instructions, model, vectorStoreId}) {
+  return await Assistants.findByIdAndUpdate(assistantId, {name, description, instructions, model, vectorStoreId}, {new: true});
 }
 
 /**
@@ -47,8 +47,8 @@ function updateAssistant({assistantId, name, description, instructions, model, v
  * @param {String} id - Assistant ObjectId
  * @returns {Promise<Object|null>} - Deleted assistant or null
  */
-function deleteAssistant({assistantId}) {
-  return Assistants.findByIdAndUpdate(assistantId, {isDeleted: true});
+async function deleteAssistant({assistantId}) {
+  return await Assistants.findByIdAndUpdate(assistantId, {isDeleted: true});
 }
 
 module.exports = {

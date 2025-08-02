@@ -45,4 +45,3 @@ const assistantSchema = new Schema(
 
 const Assistants = mongoose.model('Assistant', assistantSchema);
 module.exports = Assistants;
-

@@ -1,3 +1,28 @@
+const mongoose = require('mongoose');
+const {ObjectId} = mongoose.Types;
+
+// Global Mocks
+jest.mock('../helpers/errorReporter', () => ({
+  errorReporter: jest.fn(),
+}));
+
+expect.extend({
+  toBeObjectId(received) {
+    const pass = ObjectId.isValid(received);
+    if (pass) {
+      return {
+        message: () => `expected ${received} not to be a valid ObjectId`,
+        pass: true,
+      };
+    } else {
+      return {
+        message: () => `expected ${received} to be a valid ObjectId`,
+        pass: false,
+      };
+    }
+  },
+});
+
 function MockResponse() {
   return {
     status: jest.fn().mockReturnThis(),
@@ -8,32 +33,28 @@ function MockResponse() {
   };
 }
 
-const applyCacheAndMock = (model) => {
-  // List of methods we want to mock
-  const methods = ['findOne', 'find', 'findOneAndUpdate', 'findById', 'countDocuments',
-    'updateOne', 'create', 'updateMany', 'insertOne', 'exists', 'deleteMany', 'bulkWrite',
-    'findByIdAndUpdate', 'findByIdAndDelete', 'aggregate', 'watch', 'distinct', 'deleteOne'];
+function applyCacheAndMock(model) {
+  const methods = [
+    'find',
+    'findOne',
+    'findById',
+    'findOneAndUpdate',
+    'findByIdAndUpdate',
+    'create',
+    'updateOne',
+    'updateMany',
+    'deleteOne',
+    'deleteMany',
+    'countDocuments',
+    'aggregate',
+    'distinct',
+  ];
 
-  // List of chainable Mongoose methods that might follow the methods above
-  const chainableMethods = ['sort', 'limit', 'select', 'skip', 'exec', 'cache'];
-
-  methods.forEach((method) => {
-    const originalMethod = model[method];
-
-    model[method] = jest.fn(function(...args) {
-      const result = originalMethod.apply(this, args);
-
-      // Ensuring other methods are chainable
-      chainableMethods.forEach((chainMethod) => {
-        if (typeof result[chainMethod] !== 'function') {
-          result[chainMethod] = jest.fn().mockReturnThis();
-        }
-      });
-
-      return result;
-    }.bind(model));
+  methods.forEach((m) => {
+    // stub each to a jest.fn that resolves to undefined by default
+    model[m] = jest.fn().mockResolvedValue(undefined);
   });
-};
+}
 
 module.exports = {
   MockResponse,
