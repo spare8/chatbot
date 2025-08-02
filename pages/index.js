@@ -1,4 +1,4 @@
-// pages/admin/index.js
+// pages/index.js
 import Link from 'next/link';
 
 export default function Home() {
@@ -6,14 +6,19 @@ export default function Home() {
     <div style={{ padding: 20, textAlign: 'center' }}>
       <h1>Chatbot Management</h1>
       <div style={{ marginTop: 20, display: 'flex', justifyContent: 'center', gap: '1rem' }}>
-        <Link href="/admin/assistants">
+        <Link href="/config">
           <button style={{ padding: '0.5rem 1rem', fontSize: '1rem' }}>
-            Manage Assistants
+            Chatbot Config
           </button>
         </Link>
-        <Link href="/admin/vector-stores">
+        <Link href="/admin">
           <button style={{ padding: '0.5rem 1rem', fontSize: '1rem' }}>
-            Manage Vector Stores
+            Chatbot Admin
+          </button>
+        </Link>
+        <Link href="/client">
+          <button style={{ padding: '0.5rem 1rem', fontSize: '1rem' }}>
+            Chatbot Client
           </button>
         </Link>
       </div>
