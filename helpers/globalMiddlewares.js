@@ -26,7 +26,7 @@ const applyAsyncHandlerGlobally = (app) => {
   const wrapRoutes = (stack) => {
     stack.forEach((layer) => {
       if (layer.route) {
-        layer.route.stack.forEach(l => {
+        layer.route.stack.forEach((l) => {
           l.handle = asyncHandler(l.handle);
         });
       } else if (layer.name === 'router' && layer.handle.stack) {
