@@ -1,6 +1,5 @@
 // __tests__/errorReporter.test.js
 
-// 1️⃣ Mock out the ErrorLogs model and our utils helper
 jest.mock('../../models/errorsSchema', () => ({
   create: jest.fn(),
 }))
@@ -8,10 +7,9 @@ jest.mock('../../helpers/utils', () => ({
   isLocalEnv: jest.fn(),
 }))
 
-// 2️⃣ Now require the things under test
 const ErrorLogs = require('../../models/errorsSchema')
 const { isLocalEnv } = require('../../helpers/utils')
-const { errorReporter } = require('../../helpers/errorReporter')  // ← adjust path if needed
+const { errorReporter } = require('../../helpers/errorReporter') 
 
 describe('errorReporter()', () => {
   let logSpy
@@ -19,7 +17,6 @@ describe('errorReporter()', () => {
   fakeErr.stack = 'fake-stack'
 
   beforeEach(() => {
-    jest.clearAllMocks()
     // intercept all console.log calls
     logSpy = jest.spyOn(console, 'log').mockImplementation(() => {})
   })

@@ -4,9 +4,7 @@ describe('environment utils', () => {
   const UTILS_PATH  = '../../helpers/utils.js'
 
   afterEach(() => {
-    // Clear both Jest’s module registry and any mocks
     jest.resetModules()
-    jest.clearAllMocks()
   })
 
   const cases = [
