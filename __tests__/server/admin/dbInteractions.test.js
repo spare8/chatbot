@@ -1,6 +1,6 @@
 const {applyCacheAndMock} = require('../../setupTests');
 const {createAssistant, updateAssistant, getAllAssistants, getAssistantById, deleteAssistant,
-  createVectorStore,
+  createVectorStore, getAllVectorStores, deleteVectorStore, updateVectorStore, getVectorStoreById,
 } = require('../../../server/admin/dbInteractions');
 const Assistants = require('../../../models/assistant');
 const VectorStores = require('../../../models/vectorStore');
@@ -10,7 +10,9 @@ applyCacheAndMock(Assistants);
 applyCacheAndMock(VectorStores);
 
 const assistantId = new ObjectId();
+const vectorStoreId = new ObjectId();
 
+// Create
 describe('createAssistant', () => {
   it('should throw an error if no name provided', async () => {
     const assistantData = {
@@ -51,42 +53,6 @@ describe('createAssistant', () => {
     expect(Assistants.create).toHaveBeenCalledWith(assistantData);
   });
 });
-
-describe('updateAssistant', () => {
-  it('should update an existing assistant with valid data', async () => {
-    const updateData = {
-      name: 'Updated Assistant',
-      description: 'Updated description',
-      instructions: 'Updated instructions',
-      model: 'gpt-4',
-      vectorStoreId: 'test-vector-store-id',
-    };
-    await updateAssistant({assistantId, ...updateData});
-    expect(Assistants.findByIdAndUpdate).toHaveBeenCalledWith(assistantId, updateData, {new: true});
-  });
-});
-
-describe('getAssistantById', () => {
-  it('should retrieve an assistant by ID', async () => {
-    await getAssistantById({assistantId});
-    expect(Assistants.findById).toHaveBeenCalledWith(assistantId);
-  });
-});
-
-describe('getAllAssistants', () => {
-  it('should retrieve all assistants', async () => {
-    await getAllAssistants();
-    expect(Assistants.find).toHaveBeenCalledWith({isDeleted: {$ne: true}});
-  });
-});
-
-describe('deleteAssistant', () => {
-  it('should delete an assistant by ID', async () => {
-    await deleteAssistant({assistantId});
-    expect(Assistants.findByIdAndUpdate).toHaveBeenCalledWith(assistantId, {isDeleted: true});
-  });
-});
-
 describe('createVectorStore', () => {
   let vectorStoreData;
   beforeEach(() => {
@@ -133,5 +99,70 @@ describe('createVectorStore', () => {
     };
     await createVectorStore(vectorStoreData);
     expect(VectorStores.create).toHaveBeenCalledWith(vectorStoreData);
+  });
+});
+
+// Update
+describe('updateAssistant', () => {
+  it('should update an existing assistant with valid data', async () => {
+    const updateData = {
+      name: 'Updated Assistant',
+      description: 'Updated description',
+      instructions: 'Updated instructions',
+      model: 'gpt-4',
+      vectorStoreId: 'test-vector-store-id',
+    };
+    await updateAssistant({assistantId, ...updateData});
+    expect(Assistants.findOneAndUpdate).toHaveBeenCalledWith({openaiId: assistantId}, updateData, {new: true});
+  });
+});
+describe('updateVectorStore', () => {
+  it('should update an existing assistant with valid data', async () => {
+    const updateData = {
+      name: 'Updated Assistant',
+      description: 'Updated description',
+    };
+    await updateVectorStore({vectorStoreId, ...updateData});
+    expect(VectorStores.findOneAndUpdate).toHaveBeenCalledWith({openaiId: vectorStoreId}, updateData, {new: true});
+  });
+});
+
+// Fetch
+describe('getAssistantById', () => {
+  it('should retrieve an assistant by ID', async () => {
+    await getAssistantById({assistantId});
+    expect(Assistants.findOne).toHaveBeenCalledWith({openaiId: assistantId});
+  });
+});
+describe('getVectorStoreById', () => {
+  it('should retrieve an VS by ID', async () => {
+    await getVectorStoreById({vectorStoreId});
+    expect(VectorStores.findOne).toHaveBeenCalledWith({openaiId: vectorStoreId});
+  });
+});
+describe('getAllAssistants', () => {
+  it('should retrieve all assistants', async () => {
+    await getAllAssistants();
+    expect(Assistants.find).toHaveBeenCalledWith({isDeleted: {$ne: true}});
+  });
+});
+describe('getAllVectorStores', () => {
+  it('should retrieve all assistants', async () => {
+    await getAllVectorStores();
+    expect(VectorStores.find).toHaveBeenCalledWith({isDeleted: {$ne: true}});
+  });
+});
+
+// Delete
+describe('deleteAssistant', () => {
+  it('should delete an assistant by ID', async () => {
+    await deleteAssistant({assistantId});
+    expect(Assistants.findOneAndUpdate).toHaveBeenCalledWith({openaiId: assistantId}, {isDeleted: true});
+  });
+});
+describe('deleteVectorStore', () => {
+  it('should delete a VS by ID', async () => {
+    await deleteVectorStore({vectorStoreId});
+    expect(VectorStores.findOneAndUpdate).toHaveBeenCalledWith({openaiId: vectorStoreId}, {isDeleted: true});
   });
 });

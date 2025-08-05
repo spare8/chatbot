@@ -45,13 +45,13 @@ describe('createVectorStore', () => {
   it('should create a vector store', async () => {
     await createVectorStore(req, res);
     expect(createVectorStoreOpenaiHelper).toHaveBeenCalledWith({
-        name, description, maxChunkOverlap, maxChunkSize});
+      name, description, maxChunkOverlap, maxChunkSize});
     expect(createVectorStoreDbInteraction).toHaveBeenCalledWith({
       name, description, maxChunkOverlap, maxChunkSize, openaiId,
     });
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
-        "message": "Vector store created successfully", openaiId
+      'message': 'Vector store created successfully', openaiId,
     }));
   });
 });
