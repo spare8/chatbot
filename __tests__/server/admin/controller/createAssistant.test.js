@@ -49,7 +49,7 @@ describe('createAssistant', () => {
       name, description, instructions, model, openaiId, toolResources: {}, tools: [],
     });
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({name, description, instructions, 
-      model, openaiId }));
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({name, description, instructions,
+      model, openaiId}));
   });
 });
