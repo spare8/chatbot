@@ -5,7 +5,7 @@ const {updateAssistant} = require('./controller/modifyAssistant');
 const {deleteAssistant} = require('./controller/deleteAssistant');
 const {listAssistants} = require('./controller/listAssistants');
 const {createVectorStore} = require('./controller/createVectorStore');
-const { listVectorStores } = require('./controller/listVectorStores');
+const {listVectorStores} = require('./controller/listVectorStores');
 
 router.get('/health', (_req, res) => {
   res.json({status: 'OK'});
