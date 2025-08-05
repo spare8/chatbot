@@ -1,10 +1,13 @@
 // server/index.js
 
 const path = require('path');
+const {verifyConfig} = require('../../helpers/verifyConfig.js');
 require('dotenv').config({
-  path: path.resolve(__dirname, '../../.env'), // <-- force the project-root .env
+  path: path.resolve(__dirname, '../../.env'),
 });
-console.log(path.resolve(__dirname, '../../.env')); // <-- force the project-root .env
+
+// IIFE to catch incorrect config setup, ie any null or undefined values
+(() => verifyConfig())();
 
 const express = require('express');
 const mongoose = require('mongoose');
