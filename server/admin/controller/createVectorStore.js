@@ -8,6 +8,7 @@ async function createVectorStore({body: {name, description,
   }
   const openaiId = await createVectorStoreOpenAI({name, description, maxChunkSize, maxChunkOverlap});
   await createVectorStoreDbInteraction({name, description, maxChunkSize, maxChunkOverlap, openaiId});
+  return res.status(200).json({message: 'Vector store created successfully', openaiId});
 }
 
 module.exports = {
