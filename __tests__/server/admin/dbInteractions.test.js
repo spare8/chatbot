@@ -1,9 +1,13 @@
 const {applyCacheAndMock} = require('../../setupTests');
-const {createAssistant, updateAssistant, getAllAssistants, getAssistantById, deleteAssistant} = require('../../../server/admin/dbInteractions');
+const {createAssistant, updateAssistant, getAllAssistants, getAssistantById, deleteAssistant,
+  createVectorStore,
+} = require('../../../server/admin/dbInteractions');
 const Assistants = require('../../../models/assistant');
+const VectorStores = require('../../../models/vectorStore');
 const {ObjectId} = require('mongoose').Types;
 
 applyCacheAndMock(Assistants);
+applyCacheAndMock(VectorStores);
 
 const assistantId = new ObjectId();
 
@@ -80,5 +84,54 @@ describe('deleteAssistant', () => {
   it('should delete an assistant by ID', async () => {
     await deleteAssistant({assistantId});
     expect(Assistants.findByIdAndUpdate).toHaveBeenCalledWith(assistantId, {isDeleted: true});
+  });
+});
+
+describe('createVectorStore', () => {
+  let vectorStoreData;
+  beforeEach(() => {
+    vectorStoreData = {
+      name: 'Test Vector Store',
+      openaiId: 'test-openai-id',
+      description: 'This is a test vector store',
+      maxChunkSize: 10,
+      maxChunkOverlap: 10,
+    };
+  });
+  it('should throw an error if no name provided', async () => {
+    vectorStoreData.name = null;
+    await expect(createVectorStore(vectorStoreData)).rejects
+        .toThrow('Insufficient Params to create a vector store');
+  });
+  it('should throw an error if no description provided', async () => {
+    vectorStoreData.description = null;
+    await expect(createVectorStore(vectorStoreData)).rejects
+        .toThrow('Insufficient Params to create a vector store');
+  });
+  it('should throw an error if no openaiId provided', async () => {
+    vectorStoreData.openaiId = null;
+    await expect(createVectorStore(vectorStoreData)).rejects
+        .toThrow('Insufficient Params to create a vector store');
+  });
+  it('should throw an error if no maxChunkSize provided', async () => {
+    vectorStoreData.maxChunkSize = null;
+    await expect(createVectorStore(vectorStoreData)).rejects
+        .toThrow('Insufficient Params to create a vector store');
+  });
+  it('should throw an error if no maxChunkSize provided', async () => {
+    vectorStoreData.maxChunkSize = null;
+    await expect(createVectorStore(vectorStoreData)).rejects
+        .toThrow('Insufficient Params to create a vector store');
+  });
+  it('should create a new vector store with valid data', async () => {
+    const vectorStoreData = {
+      name: 'Test Vector Store',
+      openaiId: 'test-openai-id',
+      description: 'This is a test vector store',
+      maxChunkOverlap: 10,
+      maxChunkSize: 10,
+    };
+    await createVectorStore(vectorStoreData);
+    expect(VectorStores.create).toHaveBeenCalledWith(vectorStoreData);
   });
 });

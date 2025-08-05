@@ -1,5 +1,6 @@
 // server/dbInteractions/assistantDb.js
 const Assistants = require('../../models/assistant');
+const VectorStores = require('../../models/vectorStore');
 
 /**
  * Create a new assistant
@@ -51,10 +52,18 @@ async function deleteAssistant({assistantId}) {
   return await Assistants.findByIdAndUpdate(assistantId, {isDeleted: true});
 }
 
+async function createVectorStore({name, openaiId, description, maxChunkOverlap, maxChunkSize}) {
+  if (!name || !description || !openaiId || !maxChunkOverlap || !maxChunkSize) {
+    throw new Error('Insufficient Params to create a vector store');
+  }
+  return await VectorStores.create({name, openaiId, description, maxChunkOverlap, maxChunkSize});
+}
+
 module.exports = {
   createAssistant,
   getAssistantById,
   getAllAssistants,
   updateAssistant,
   deleteAssistant,
+  createVectorStore,
 };

@@ -15,6 +15,15 @@ const vectorStoreSchema = new Schema(
       description: {
         type: String,
         default: '',
+        required: true,
+      },
+      maxChunkOverlap: {
+        type: Number,
+        required: true,
+      },
+      maxChunkSize: {
+        type: Number,
+        required: true,
       },
     },
     {
