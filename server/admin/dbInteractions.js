@@ -1,5 +1,6 @@
 // server/dbInteractions/assistantDb.js
 const Assistants = require('../../models/assistant');
+const VectorStores = require('../../models/vectorStore');
 
 /**
  * Create a new assistant
@@ -21,7 +22,10 @@ async function createAssistant({name, description, instructions, model, vectorSt
  * @returns {Promise<Object|null>} - Found assistant or null
  */
 async function getAssistantById({assistantId}) {
-  return await Assistants.findById(assistantId);
+  return await Assistants.findOne({openaiId: assistantId});
+}
+async function getVectorStoreById({vectorStoreId}) {
+  return await VectorStores.findOne({openaiId: vectorStoreId});
 }
 
 /**
@@ -31,6 +35,9 @@ async function getAssistantById({assistantId}) {
 async function getAllAssistants() {
   return await Assistants.find({isDeleted: {$ne: true}});
 }
+async function getAllVectorStores() {
+  return await VectorStores.find({isDeleted: {$ne: true}});
+}
 
 /**
  * Update an assistant by ID
@@ -39,7 +46,10 @@ async function getAllAssistants() {
  * @returns {Promise<Object|null>} - Updated assistant or null
  */
 async function updateAssistant({assistantId, name, description, instructions, model, vectorStoreId}) {
-  return await Assistants.findByIdAndUpdate(assistantId, {name, description, instructions, model, vectorStoreId}, {new: true});
+  return await Assistants.findOneAndUpdate({openaiId: assistantId}, {name, description, instructions, model, vectorStoreId}, {new: true});
+}
+async function updateVectorStore({vectorStoreId, name, description}) {
+  return await VectorStores.findOneAndUpdate({openaiId: vectorStoreId}, {name, description}, {new: true});
 }
 
 /**
@@ -48,7 +58,17 @@ async function updateAssistant({assistantId, name, description, instructions, mo
  * @returns {Promise<Object|null>} - Deleted assistant or null
  */
 async function deleteAssistant({assistantId}) {
-  return await Assistants.findByIdAndUpdate(assistantId, {isDeleted: true});
+  return await Assistants.findOneAndUpdate({openaiId: assistantId}, {isDeleted: true});
+}
+async function deleteVectorStore({vectorStoreId}) {
+  return await VectorStores.findOneAndUpdate({openaiId: vectorStoreId}, {isDeleted: true});
+}
+
+async function createVectorStore({name, openaiId, description, maxChunkOverlap, maxChunkSize}) {
+  if (!name || !description || !openaiId || !maxChunkOverlap || !maxChunkSize) {
+    throw new Error('Insufficient Params to create a vector store');
+  }
+  return await VectorStores.create({name, openaiId, description, maxChunkOverlap, maxChunkSize});
 }
 
 module.exports = {
@@ -56,5 +76,10 @@ module.exports = {
   getAssistantById,
   getAllAssistants,
   updateAssistant,
+  updateVectorStore,
   deleteAssistant,
+  createVectorStore,
+  getAllVectorStores,
+  deleteVectorStore,
+  getVectorStoreById,
 };
