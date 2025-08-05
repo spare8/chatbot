@@ -19,15 +19,6 @@ const NextConfig = {
     }
     return config;
   },
-
-  async rewrites() {
-    return [
-      {
-        source: '/admin/assistant/:path*',
-        destination: 'http://localhost:3001/assistant/:path*',
-      },
-    ];
-  },
 };
 
 module.exports = NextConfig;

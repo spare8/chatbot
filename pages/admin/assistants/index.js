@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
-// import{SERVER_URL} from  '../../../config/config.js';
 const SERVER_URL = 'http://localhost:3000'; // Fallback for local development
-const API_BASE = `${SERVER_URL}/admin/assistant`;
+const API_BASE = `${SERVER_URL}/assistant`;
 
 export default function AssistantsPage() {
   const [assistants, setAssistants] = useState([]);
