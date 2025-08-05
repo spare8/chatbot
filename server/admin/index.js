@@ -1,4 +1,11 @@
 // server/index.js
+
+const path = require('path');
+require('dotenv').config({
+  path: path.resolve(__dirname, '../../.env'), // <-- force the project-root .env
+});
+console.log(path.resolve(__dirname, '../../.env')); // <-- force the project-root .env
+
 const express = require('express');
 const mongoose = require('mongoose');
 const {ADMIN_SERVER_PORT, MONGODB_URI} = require('../../config/config.js');

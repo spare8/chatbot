@@ -4,19 +4,19 @@ const {createAssistant: createAssistantDBInteraction} = require('../../../../ser
 const {createAssistant2: createAssistantOpenaiHelper} = require('../../../../helpers/openAI');
 
 jest.mock('../../../../server/admin/dbInteractions', () => ({
-    createAssistant: jest.fn()
+  createAssistant: jest.fn(),
 }));
 jest.mock('../../../../helpers/openAI', () => ({
-    createAssistant2: jest.fn()
+  createAssistant2: jest.fn(),
 }));
 
-const openaiId = "test"
-const name = "test name"
-const description = "test desc"
-const model = "test model"
-const instructions = "test ins"
+const openaiId = 'test';
+const name = 'test name';
+const description = 'test desc';
+const model = 'test model';
+const instructions = 'test ins';
 describe('createAssistant', () => {
-  let res, req;
+  let res; let req;
 
   beforeAll( ()=> {
     createAssistantOpenaiHelper.mockResolvedValue(openaiId);
@@ -44,11 +44,12 @@ describe('createAssistant', () => {
 
   it('should return a list of assistants', async () => {
     await createAssistant(req, res);
-    expect(createAssistantOpenaiHelper).toHaveBeenCalledWith({name, description, instructions, model});
+    expect(createAssistantOpenaiHelper).toHaveBeenCalledWith({name, description, instructions, model, tool_resources: {}, tools: []});
     expect(createAssistantDBInteraction).toHaveBeenCalledWith({
-      name, description, instructions, model, openaiId
+      name, description, instructions, model, openaiId, toolResources: {}, tools: [],
     });
     expect(res.status).toHaveBeenCalledWith(200);
-    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({name, description, instructions, model, openaiId}));
+    expect(res.json).toHaveBeenCalledWith(expect.objectContaining({name, description, instructions, 
+      model, openaiId }));
   });
 });

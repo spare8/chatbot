@@ -3,15 +3,15 @@ const {getAllAssistants} = require('../../../../server/admin/dbInteractions');
 const {MockResponse} = require('../../../setupTests');
 
 jest.mock('../../../../server/admin/dbInteractions', () => ({
-    getAllAssistants: jest.fn()
+  getAllAssistants: jest.fn(),
 }));
 
 const mockAssistants = [
-      {id: '1', name: 'Assistant 1'},
-      {id: '2', name: 'Assistant 2'},
-    ];
+  {id: '1', name: 'Assistant 1'},
+  {id: '2', name: 'Assistant 2'},
+];
 describe('listAssistants', () => {
-  let res, req;
+  let res; let req;
 
   beforeAll( ()=> {
     getAllAssistants.mockResolvedValue(mockAssistants);
