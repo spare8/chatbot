@@ -18,16 +18,19 @@ const asyncHandler = (fn) => (req, res, next) => {
 };
 
 const applyAsyncHandlerGlobally = (app) => {
+  if (!app._router || !Array.isArray(app._router.stack)) {
+    // nothing to wrap
+    return;
+  }
+
   const wrapRoutes = (stack) => {
-    stack.forEach((middleware) => {
-      if (middleware.route) {
-        // Middleware with a route registered directly on the app
-        middleware.route.stack.forEach((layer) => {
-          layer.handle = asyncHandler(layer.handle);
+    stack.forEach((layer) => {
+      if (layer.route) {
+        layer.route.stack.forEach(l => {
+          l.handle = asyncHandler(l.handle);
         });
-      } else if (middleware.name === 'router') {
-        // For nested routers
-        wrapRoutes(middleware.handle.stack);
+      } else if (layer.name === 'router' && layer.handle.stack) {
+        wrapRoutes(layer.handle.stack);
       }
     });
   };
