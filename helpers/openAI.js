@@ -866,38 +866,28 @@ async function deleteThread(threadId) {
   }
 }
 
-async function modifyAssistant2({
-  assistantId,
-  name,
-  instructions,
-  description = '',
-  tools = [],
-  model = 'gpt-3.5-turbo',
-  tool_resources,
-  metadata = {},
-}) {
-  if (!assistantId) {
-    throw new Error('assistantId is required to modify an assistant');
-  }
+async function modifyAssistant2({ assistantId, name, instructions, description = '', tools = [], model = 'gpt-3.5-turbo', tool_resources = {}, metadata = {} }) {
+  if (!assistantId) throw new Error('assistantId is required');
   if (!name || !instructions || !Array.isArray(tools)) {
-    throw new Error('Insufficient or invalid params passed to modify assistant');
+    throw new Error('Insufficient or invalid params');
   }
 
   const payload = {
-    ...(name && {name}),
-    ...(instructions && {instructions}),
-    ...(model && {model}),
-    ...(tools && {tools}),
-    ...(description && {description}),
-    ...(tool_resources && {tool_resources}),
-    ...(metadata && Object.keys(metadata).length > 0 && {metadata}),
+    ...(name && { name }),
+    ...(instructions && { instructions }),
+    ...(model && { model }),
+    ...(description && { description }),
+    ...(tools && { tools }),
+    ...(tool_resources && { tool_resources }),
+    ...(metadata && Object.keys(metadata).length && { metadata }),
   };
 
   try {
-    const response = await axios.patch(
-        `https://api.openai.com/v1/assistants/${assistantId}`,
-        payload,
-        {headers: openAPIHeaders},
+    // Use POST instead of PATCH
+    const response = await axios.post(
+      `https://api.openai.com/v1/assistants/${assistantId}`,
+      payload,
+      { headers: openAPIHeaders }
     );
     return response.data;
   } catch (err) {
@@ -905,6 +895,7 @@ async function modifyAssistant2({
     return null;
   }
 }
+
 
 module.exports = {
   createAssistant,

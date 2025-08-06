@@ -2,11 +2,9 @@
 const {deleteAssistant: deleteAssistantDBInteraction} = require('../dbInteractions');
 const {deleteAssistant: deleteAssistantOpenaiHelper} = require('../../../helpers/openAI');
 
-/**
- * Delete an existing assistant on OpenAI and soft-delete in MongoDB
- * Expects assistantId as a URL param
- */
+
 async function deleteAssistant({body: {assistantId}}, res) {
+  console.log('deleteAssistant called with body:', {assistantId});
   if (!assistantId) {
     return res.status(400).json({error: 'assistantId is required'});
   }
