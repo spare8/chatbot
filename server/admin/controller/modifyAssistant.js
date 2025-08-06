@@ -1,46 +1,45 @@
-// server/controllers/updateAssistant.js
-const {updateAssistant: updateAssistantDBInteraction} = require('../dbInteractions');
-const {modifyAssistant2: modifyAssistantOpenaiHelper} = require('../../../helpers/openAI');
+const { updateAssistant: updateAssistantDBInteraction } = require('../dbInteractions');
+const { modifyAssistant2: modifyAssistantOpenaiHelper } = require('../../../helpers/openAI');
 
-async function updateAssistant(
-    {params: {assistantId}, body: {
-      name,
-      instructions,
-      description = '',
-      model,
-      tools = [],
-      tool_resources = {},
-      vectorStoreIds = [],
-      metadata = {},
-    }},
-    res,
-) {
-  // 1) Validate URL param
+/**
+ * Update an existing assistant on OpenAI and MongoDB
+ * Expects assistantId and updated fields in the request body
+ */
+async function updateAssistant(req, res) {
+  const {
+    assistantId,
+    name,
+    instructions,
+    description = '',
+    model,
+    tools = [],
+    tool_resources = {},
+    vectorStoreIds = [],
+    metadata = {},
+  } = req.body;
+
+  // 1) Validate required fields
   if (!assistantId) {
-    return res
-        .status(400)
-        .json({error: 'assistantId URL parameter is required'});
+    return res.status(400).json({ error: 'assistantId is required in the request body' });
   }
-
-  // 2) Validate required body fields
   if (!name || !instructions || !model) {
     return res
-        .status(400)
-        .json({error: 'Name, instructions, and model are required to update an assistant'});
+      .status(400)
+      .json({ error: 'assistantId, name, instructions, and model are required' });
   }
 
-  // 3) Build final tools array and resources
+  // 2) Build final tools array and resources
   const finalTools = Array.isArray(tools) ? [...tools] : [];
-  const finalResources = {...tool_resources};
+  const finalResources = { ...tool_resources };
 
   if (vectorStoreIds.length > 0) {
     if (!finalTools.some((t) => t.type === 'file_search')) {
-      finalTools.push({type: 'file_search'});
+      finalTools.push({ type: 'file_search' });
     }
-    finalResources.file_search = {vector_store_ids: vectorStoreIds};
+    finalResources.file_search = { vector_store_ids: vectorStoreIds };
   }
 
-  // 4) Push update to OpenAI
+  // 3) Push update to OpenAI
   const openaiResult = await modifyAssistantOpenaiHelper({
     assistantId,
     name,
@@ -55,7 +54,7 @@ async function updateAssistant(
     throw new Error('OpenAI modifyAssistant2 did not return data');
   }
 
-  // 5) Persist update in MongoDB
+  // 4) Persist update in MongoDB
   const updatedAssistant = await updateAssistantDBInteraction({
     assistantId,
     name,
@@ -68,8 +67,8 @@ async function updateAssistant(
     metadata,
   });
 
-  // 6) Respond
+  // 5) Respond
   return res.status(200).json(updatedAssistant);
 }
 
-module.exports = {updateAssistant};
+module.exports = { updateAssistant };
