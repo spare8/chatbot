@@ -34,6 +34,7 @@
   },
   "homepage": "https://github.com/spare8/chatbot#readme",
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.859.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.0",
