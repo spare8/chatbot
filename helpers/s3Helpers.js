@@ -107,6 +107,42 @@ async function streamFileToResponse(folderName, fileName, res) {
   });
 }
 
+/**
+ * Renames an entire “folder” in S3 by copying each object
+ * under the old prefix into a new prefix, then deleting the old ones.
+ */
+async function renameFolder({oldFolderName, newFolderName}) {
+  const oldPrefix = oldFolderName.endsWith('/') ? oldFolderName : `${oldFolderName}/`;
+  const newPrefix = newFolderName.endsWith('/') ? newFolderName : `${newFolderName}/`;
+
+  // 1) List everything under the old prefix
+  const listCmd = new ListObjectsV2Command({Bucket: bucketName, Prefix: oldPrefix});
+  const listResp = await s3Client.send(listCmd);
+  const items = listResp.Contents || [];
+
+  // 2) Copy each object to the new prefix
+  for (const {Key: oldKey} of items) {
+    const newKey = oldKey.replace(oldPrefix, newPrefix);
+    await s3Client.send(new CopyObjectCommand({
+      Bucket: bucketName,
+      CopySource: `${bucketName}/${oldKey}`,
+      Key: newKey,
+    }));
+  }
+
+  // 3) Delete the originals
+  for (const {Key: oldKey} of items) {
+    await s3Client.send(new DeleteObjectCommand({
+      Bucket: bucketName,
+      Key: oldKey,
+    }));
+  }
+}
+
+async function deleteFolder({folderName}) {
+  await renameFolder({oldFolderName: folderName, newFolderName: `${folderName}-deleted/`});
+}
+
 module.exports = {
   createFolder,
   fetchAllFolders,
@@ -114,4 +150,5 @@ module.exports = {
   deleteFile,
   listFilesInFolder,
   streamFileToResponse,
+  deleteFolder,
 };

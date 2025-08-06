@@ -6,6 +6,7 @@ const {deleteAssistant} = require('./controller/deleteAssistant');
 const {listAssistants} = require('./controller/listAssistants');
 const {createVectorStore} = require('./controller/createVectorStore');
 const {listVectorStores} = require('./controller/listVectorStores');
+const {deleteVectorStore} = require('./controller/deleteVectorStore');
 
 router.get('/health', (_req, res) => {
   res.json({status: 'OK'});
@@ -20,5 +21,6 @@ router.get('/assistant/list', listAssistants);
 // Vector Store Management
 router.post('/vectorStore/create', createVectorStore);
 router.get('/vectorStore/list', listVectorStores);
+router.post('/vectorStore/delete', deleteVectorStore);
 
 module.exports = router;

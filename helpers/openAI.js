@@ -370,22 +370,16 @@ async function modifyVectorStore(vectorStoreId, metadata) {
   return null;
 }
 
-async function deleteVectorStore(vectorStoreId) {
+async function deleteVectorStore({vectorStoreId}) {
   if (!vectorStoreId) {
     throw new Error('vectorStoreId is required to delete a vector store');
   }
 
-  try {
-    const response = await axios.delete(
-        `https://api.openai.com/v1/vector_stores/${vectorStoreId}`,
-        {headers: openAPIHeaders},
-    );
-    return response.data;
-  } catch (err) {
-    console.error('Error deleting vector store:', err.response?.data || err.message);
-  }
-
-  return null;
+  const response = await axios.delete(
+      `https://api.openai.com/v1/vector_stores/${vectorStoreId}`,
+      {headers: openAPIHeaders},
+  );
+  return response.data;
 }
 
 async function searchVectorStoreFiles(vectorStoreId) {
@@ -834,20 +828,15 @@ async function createThreadAndRunWithOptions({
   return null;
 }
 
-async function deleteAssistant(assistantId) {
+async function deleteAssistant({assistantId}) {
   if (!assistantId) {
     throw new Error('assistantId is required');
   }
-  try {
-    const response = await axios.delete(
-        `https://api.openai.com/v1/assistants/${assistantId}`,
-        {headers: openAPIHeaders},
-    );
-    return response.data;
-  } catch (err) {
-    console.error('Error deleting assistant:', err.response?.data || err.message);
-    return null;
-  }
+  const response = await axios.delete(
+      `https://api.openai.com/v1/assistants/${assistantId}`,
+      {headers: openAPIHeaders},
+  );
+  return response.data;
 }
 
 async function deleteThread(threadId) {
