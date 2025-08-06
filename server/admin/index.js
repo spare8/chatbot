@@ -11,11 +11,19 @@ require('dotenv').config({
 
 const express = require('express');
 const mongoose = require('mongoose');
-const {ADMIN_SERVER_PORT, MONGODB_URI} = require('../../config/config.js');
+const cors = require('cors');
+const {ADMIN_SERVER_PORT, MONGODB_URI, CLIENT_URL} = require('../../config/config.js');
 const {applyErrorReporterMiddleware} = require('../../helpers/globalMiddlewares.js');
 const routes = require('./routes');
 
 const app = express();
+
+app.use(cors({
+  origin: CLIENT_URL,
+  credentials: true
+}));
+
+
 app.use(express.json());
 app.use('/', routes);
 applyErrorReporterMiddleware(app);

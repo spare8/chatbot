@@ -8,6 +8,7 @@ config.MONGODB_URI = process.env.MONGODB_URI;
 config.ADMIN_SERVER_PORT = process.env.ADMIN_SERVER_PORT;
 config.NODE_ENV = process.env.NODE_ENV;
 config.SERVER_URL = process.env.SERVER_URL;
+config.CLIENT_URL = process.env.CLIENT_URL;
 
 
 module.exports = config;
