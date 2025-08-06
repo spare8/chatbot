@@ -2,12 +2,16 @@ const {MockResponse} = require('../../../setupTests');
 const {createVectorStore} = require('../../../../server/admin/controller/createVectorStore');
 const {createVectorStore: createVectorStoreDbInteraction} = require('../../../../server/admin/dbInteractions');
 const {createVectorStore: createVectorStoreOpenaiHelper} = require('../../../../helpers/openAI');
+const {createFolder} = require('../../../../helpers/s3Helpers');
 
 jest.mock('../../../../server/admin/dbInteractions', () => ({
   createVectorStore: jest.fn(),
 }));
 jest.mock('../../../../helpers/openAI', () => ({
   createVectorStore: jest.fn(),
+}));
+jest.mock('../../../../helpers/s3Helpers', () => ({
+  createFolder: jest.fn(),
 }));
 
 const openaiId = 'test';
@@ -49,6 +53,7 @@ describe('createVectorStore', () => {
     expect(createVectorStoreDbInteraction).toHaveBeenCalledWith({
       name, description, maxChunkOverlap, maxChunkSize, openaiId,
     });
+    expect(createFolder).toHaveBeenCalledWith({folderName: openaiId});
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith(expect.objectContaining({
       'message': 'Vector store created successfully', openaiId,
