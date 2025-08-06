@@ -18,7 +18,7 @@
     "ass-sync": "node scripts/assistantSync.js",
     "ass-validate": "node scripts/assistantValidate.js",
     "dev:admin": "concurrently \"npm run dev:admin-page\" \"npm run dev:admin-server\"",
-    "dev:admin-page": "next dev",
+    "dev:admin-page": "next dev --port 3001",
     "build:admin-page": "next build",
     "start:admin-page": "next start",
     "dev:admin-server": "nodemon server/admin/index.js"
