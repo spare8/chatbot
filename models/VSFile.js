@@ -16,6 +16,9 @@ const VSfileSchema = new Schema(
         type: String,
         default: '',
       },
+      isDeleted: {
+        type: Boolean,
+      },
     },
     {
       timestamps: true,

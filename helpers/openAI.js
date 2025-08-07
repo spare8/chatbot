@@ -473,7 +473,7 @@ async function retrieveFileById(fileId) {
   return null;
 }
 
-async function deleteFileById(fileId) {
+async function deleteFileById({fileId}) {
   if (!fileId) {
     throw new Error('fileId is required to delete a file');
   }
