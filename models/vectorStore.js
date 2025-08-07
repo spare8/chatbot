@@ -30,6 +30,9 @@ const vectorStoreSchema = new Schema(
           type: String,
         },
       ],
+      isDeleted: {
+        type: Boolean,
+      },
     },
     {
       timestamps: true,

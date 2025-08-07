@@ -45,7 +45,7 @@ const assistantSchema = new Schema({
   },
   temperature: {
     type: Number,
-    default: 0.7,
+    default: 1,
     min: 0,
     max: 2,
   },
