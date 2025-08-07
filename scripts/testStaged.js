@@ -11,10 +11,8 @@ const mapToTestFiles = (files) => {
   return files
       .filter((file) => file.startsWith('server/') || file.startsWith('helpers/'))
       .map((file) => {
-        console.log(`Mapping file: ${file}`);
         const relativePath = file.replace('.js', '.test.js');
         const testFilePath = path.join('__tests__', relativePath);
-        console.log(`Test file path: ${testFilePath}`);
         try {
           execSync(`test -f ${testFilePath}`);
           return testFilePath;
