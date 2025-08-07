@@ -305,21 +305,21 @@ async function deleteMessage(threadId, messageId) {
 }
 
 
-async function createVectorStore({VSName}) {
-  if (!VSName) {
+async function createVectorStore({name, description, maxChunkSize, maxChunkOverlap}) {
+  if (!name) {
     throw new Error('Vector store name is required');
   }
-
   const payload = {
-    name: VSName,
-    description: 'Vector store with optimized static chunking',
+    name: name,
+    description: description,
     chunking_strategy: {
       type: 'static',
       static: {
-        max_chunk_size_tokens: 300,
-        chunk_overlap_tokens: 40,
+        max_chunk_size_tokens: maxChunkSize,
+        chunk_overlap_tokens: maxChunkOverlap,
       },
     },
+
   };
 
   try {
@@ -328,6 +328,7 @@ async function createVectorStore({VSName}) {
         payload,
         {headers: openAPIHeaders},
     );
+    console.log('Vector store created:', response.data);
     return response.data.id;
   } catch (err) {
     console.error('Error creating vector store:', err.response?.data || err.message);
@@ -374,8 +375,9 @@ async function deleteVectorStore({vectorStoreId}) {
   if (!vectorStoreId) {
     throw new Error('vectorStoreId is required to delete a vector store');
   }
-
+  console.log('Deleting vector store:', vectorStoreId);
   const response = await axios.delete(
+
       `https://api.openai.com/v1/vector_stores/${vectorStoreId}`,
       {headers: openAPIHeaders},
   );
@@ -906,6 +908,36 @@ async function modifyAssistant2({assistantId, name, instructions, description = 
 }
 
 
+async function linkVectorStore(assistantId, vectorStoreId) {
+  if (!assistantId || !vectorStoreId) {
+    throw new Error('Both assistantId and vectorStoreId are required');
+  }
+
+  const payload = {
+    tools: [{ type: 'file_search' }],
+    tool_resources: {
+      file_search: {
+        vector_store_ids: [vectorStoreId],
+      },
+    },
+  };
+
+  try {
+    const response = await axios.post(
+      `https://api.openai.com/v1/assistants/${assistantId}`,
+      payload,
+      { headers: openAPIHeaders }
+    );
+    return response.data;
+  } catch (err) {
+    console.error('Error linking vector store:', err.response?.data || err.message);
+    return null;
+  }
+}
+
+
+
+
 module.exports = {
   createAssistant,
   listAssistants,
@@ -948,6 +980,7 @@ module.exports = {
   deleteAssistant,
   deleteThread,
   modifyAssistant2,
+  linkVectorStore,
 
 
 };
