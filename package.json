@@ -5,11 +5,12 @@
   "main": "index.js",
   "scripts": {
     "test": "jest --verbose --coverage --config=config/jest.config.js",
+    "test-staged": "node scripts/testStaged.js",
     "file-sync": "node scripts/vectorstoreSync.js",
     "file-validate": "node scripts/vectorStoreValidate.js",
     "start": "node app/index.js",
     "prepare": "husky install && chmod +x .husky/pre-commit",
-    "pre-commit": "lint-staged && npm run find-circular-deps && npm run depcheck && npm run test",
+    "pre-commit": "lint-staged && npm run find-circular-deps && npm run depcheck && npm run test-staged",
     "lint": "eslint --fix . -c ./config/.eslintrc.json",
     "depcheck": "depcheck",
     "find-circular-deps": "madge --circular helpers",
