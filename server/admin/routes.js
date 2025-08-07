@@ -10,6 +10,7 @@ const {listVectorStores} = require('./controller/listVectorStores');
 const {deleteVectorStore} = require('./controller/deleteVectorStore');
 const {createFile} = require('./controller/createFile');
 const {deleteFile} = require('./controller/deleteFile');
+const {getFile} = require('./controller/getFile');
 
 // configure multer to keep files in memory
 const upload = multer({ storage: multer.memoryStorage() });
@@ -32,5 +33,6 @@ router.post('/vectorStore/delete', deleteVectorStore);
 // File Management
 router.post('/vectorStore/createFile', upload.single('file'), createFile);
 router.post('/vectorStore/deleteFile', deleteFile);
+router.post('/vectorStore/getFile', getFile);
 
 module.exports = router;
