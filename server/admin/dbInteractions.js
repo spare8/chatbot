@@ -82,6 +82,12 @@ async function deleteAssistant({assistantId}) {
 async function deleteVectorStore({vectorStoreId}) {
   return await VectorStores.findOneAndUpdate({openaiId: vectorStoreId}, {isDeleted: true});
 }
+async function deleteFile({vectorStoreId, fileId}) {
+  await Promise.all([
+    VSFiles.findOneAndUpdate({openaiId: fileId}, {isDeleted: true}),
+    VectorStores.findOneAndUpdate({openaiId: vectorStoreId}, {$pull: {files: fileId}})
+  ]);
+}
 
 module.exports = {
   createAssistant,
@@ -94,5 +100,6 @@ module.exports = {
   getAllVectorStores,
   deleteVectorStore,
   getVectorStoreById,
-  createFile
+  createFile,
+  deleteFile
 };

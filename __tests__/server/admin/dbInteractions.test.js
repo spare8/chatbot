@@ -1,7 +1,7 @@
 const {applyCacheAndMock} = require('../../setupTests');
 const {createAssistant, updateAssistant, getAllAssistants, getAssistantById, deleteAssistant,
   createVectorStore, getAllVectorStores, deleteVectorStore, updateVectorStore, getVectorStoreById,
-  createFile
+  createFile, deleteFile
 } = require('../../../server/admin/dbInteractions');
 const Assistants = require('../../../models/assistant');
 const VectorStores = require('../../../models/vectorStore');
@@ -199,3 +199,16 @@ describe('deleteVectorStore', () => {
     expect(VectorStores.findOneAndUpdate).toHaveBeenCalledWith({openaiId: vectorStoreId}, {isDeleted: true});
   });
 });
+describe('deleteFile', () => {
+  it('should delete a file and remove it from the vector store', async () => {
+    const fileId = 'test-file-id';
+    await deleteFile({vectorStoreId, fileId});
+    expect(VSFiles.findOneAndUpdate).toHaveBeenCalledWith({openaiId: fileId}, {isDeleted: true});
+    expect(VectorStores.findOneAndUpdate).toHaveBeenCalledWith(
+      {openaiId: vectorStoreId},
+      {$pull: {files: fileId}}
+    );
+  });
+});
+
+
