@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const multer = require('multer');
 const {createAssistant} = require('./controller/createAssistant');
 const {updateAssistant} = require('./controller/modifyAssistant');
 const {deleteAssistant} = require('./controller/deleteAssistant');
@@ -7,6 +8,12 @@ const {listAssistants} = require('./controller/listAssistants');
 const {createVectorStore} = require('./controller/createVectorStore');
 const {listVectorStores} = require('./controller/listVectorStores');
 const {deleteVectorStore} = require('./controller/deleteVectorStore');
+const {createFile} = require('./controller/createFile');
+const {deleteFile} = require('./controller/deleteFile');
+const {getFile} = require('./controller/getFile');
+
+// configure multer to keep files in memory
+const upload = multer({storage: multer.memoryStorage()});
 
 router.get('/health', (_req, res) => {
   res.json({status: 'OK'});
@@ -22,5 +29,10 @@ router.get('/assistant/list', listAssistants);
 router.post('/vectorStore/create', createVectorStore);
 router.get('/vectorStore/list', listVectorStores);
 router.post('/vectorStore/delete', deleteVectorStore);
+
+// File Management
+router.post('/vectorStore/createFile', upload.single('file'), createFile);
+router.post('/vectorStore/deleteFile', deleteFile);
+router.post('/vectorStore/getFile', getFile);
 
 module.exports = router;

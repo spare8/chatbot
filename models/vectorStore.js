@@ -25,6 +25,11 @@ const vectorStoreSchema = new Schema(
         type: Number,
         required: true,
       },
+      files: [
+        {
+          type: String,
+        },
+      ],
     },
     {
       timestamps: true,

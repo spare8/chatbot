@@ -1,6 +1,7 @@
 // server/dbInteractions/assistantDb.js
 const Assistants = require('../../models/assistant');
 const VectorStores = require('../../models/vectorStore');
+const VSFiles = require('../../models/VSFile');
 
 /**
  * Create a new assistant
@@ -14,6 +15,24 @@ async function createAssistant({name, description, instructions, model, vectorSt
   return await Assistants.create({
     name, description, instructions, model, vectorStoreId, openaiId,
   });
+}
+async function createVectorStore({name, openaiId, description, maxChunkOverlap, maxChunkSize}) {
+  if (!name || !description || !openaiId || !maxChunkOverlap || !maxChunkSize) {
+    throw new Error('Insufficient Params to create a vector store');
+  }
+  return await VectorStores.create({name, openaiId, description, maxChunkOverlap, maxChunkSize});
+}
+async function createFile({fileName, openaiId, vectorStoreId}) {
+  if (!fileName || !vectorStoreId || !openaiId) {
+    throw new Error('Insufficient Params to create a vector store');
+  }
+  await Promise.all([
+    VSFiles.create({fileName, openaiId, vectorStoreId}),
+    VectorStores.findOneAndUpdate(
+        {openaiId: vectorStoreId},
+        {$push: {files: openaiId}},
+    ),
+  ]);
 }
 
 /**
@@ -63,12 +82,11 @@ async function deleteAssistant({assistantId}) {
 async function deleteVectorStore({vectorStoreId}) {
   return await VectorStores.findOneAndUpdate({openaiId: vectorStoreId}, {isDeleted: true});
 }
-
-async function createVectorStore({name, openaiId, description, maxChunkOverlap, maxChunkSize}) {
-  if (!name || !description || !openaiId || !maxChunkOverlap || !maxChunkSize) {
-    throw new Error('Insufficient Params to create a vector store');
-  }
-  return await VectorStores.create({name, openaiId, description, maxChunkOverlap, maxChunkSize});
+async function deleteFile({vectorStoreId, fileId}) {
+  await Promise.all([
+    VSFiles.findOneAndUpdate({openaiId: fileId}, {isDeleted: true}),
+    VectorStores.findOneAndUpdate({openaiId: vectorStoreId}, {$pull: {files: fileId}}),
+  ]);
 }
 
 module.exports = {
@@ -82,4 +100,6 @@ module.exports = {
   getAllVectorStores,
   deleteVectorStore,
   getVectorStoreById,
+  createFile,
+  deleteFile,
 };

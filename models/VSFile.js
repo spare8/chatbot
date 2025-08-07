@@ -4,7 +4,7 @@ const {Schema} = mongoose;
 
 const VSfileSchema = new Schema(
     {
-      name: {
+      fileName: {
         type: String,
         required: true,
       },
@@ -15,6 +15,9 @@ const VSfileSchema = new Schema(
       vectorStoreId: {
         type: String,
         default: '',
+      },
+      isDeleted: {
+        type: Boolean,
       },
     },
     {

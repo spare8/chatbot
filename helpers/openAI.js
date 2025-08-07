@@ -1,5 +1,6 @@
 const axios = require('axios');
 const {OPEN_AI_API_TOKEN} = require('../config/config');
+const fs = require('fs');
 
 const openAPIHeaders = {
   'Content-Type': 'application/json',
@@ -227,7 +228,6 @@ async function createAssistantMessage(threadId, content) {
   return null;
 }
 
-
 async function listMessagesInThread(threadId, limit = 30) {
   if (!threadId) {
     throw new Error('threadId is required to list messages');
@@ -400,13 +400,29 @@ async function searchVectorStoreFiles(vectorStoreId) {
   return null;
 }
 
-const fs = require('fs');
-// const path = require('path');
-// const FormData = require('form-data');
-
-async function uploadFileToOpenAI(filePath) {
+/**
+ * Upload a file to OpenAI, from disk *or* from an in-memory Buffer.
+ *
+ * @param {Object}   params
+ * @param {string}  [params.filePath]  – path on disk to stream
+ * @param {Buffer}  [params.buffer]    – raw file buffer (from multer)
+ * @param {string}  [params.filename]  – required if using buffer
+ */
+async function uploadFileToOpenAI({filePath, buffer, fileName}) {
   const formData = new FormData();
-  formData.append('file', fs.createReadStream(filePath));
+
+  if (buffer) {
+    if (!fileName) {
+      throw new Error('Must pass fileName when uploading from buffer');
+    }
+    // <Buffer> + fileName instructs FormData to treat it like a file
+    formData.append('file', buffer, {fileName});
+  } else if (filePath) {
+    formData.append('file', fs.createReadStream(filePath));
+  } else {
+    throw new Error('Must provide either filePath or buffer');
+  }
+
   formData.append('purpose', 'assistants');
 
   try {
@@ -414,15 +430,17 @@ async function uploadFileToOpenAI(filePath) {
         'https://api.openai.com/v1/files',
         formData,
         {
-          headers: Object.assign({}, openAPIHeaders, formData.getHeaders()),
+          headers: {
+            ...openAPIHeaders,
+            ...formData.getHeaders(),
+          },
         },
     );
-    return response.data;
+    return response.data.id;
   } catch (err) {
     console.error('Error uploading file:', err.response?.data || err.message);
+    return null;
   }
-
-  return null;
 }
 
 async function listAllFiles() {
@@ -457,7 +475,7 @@ async function retrieveFileById(fileId) {
   return null;
 }
 
-async function deleteFileById(fileId) {
+async function deleteFileById({fileId}) {
   if (!fileId) {
     throw new Error('fileId is required to delete a file');
   }

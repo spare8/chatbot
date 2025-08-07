@@ -1,4 +1,6 @@
-const {S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectCommand, GetObjectCommand} = require('@aws-sdk/client-s3');
+const contentDisposition = require('content-disposition');
+const {S3Client, PutObjectCommand, ListObjectsV2Command, CopyObjectCommand,
+  DeleteObjectCommand, GetObjectCommand} = require('@aws-sdk/client-s3');
 const {AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET_NAME} = require('../config/config');
 
 // Initialize S3 client
@@ -42,23 +44,13 @@ async function fetchAllFolders() {
  * @param {string} fileName
  * @param {*} fileContent
  */
-async function createFile(folderName, fileName, fileContent) {
+async function createFile({folderName, fileName, fileContent}) {
   const key = `${folderName}/${fileName}`;
   await s3Client.send(new PutObjectCommand({
     Bucket: bucketName,
     Key: key,
     Body: fileContent,
   }));
-}
-
-/**
- * Deletes a file from the specified folder.
- * @param {string} folderName
- * @param {string} fileName
- */
-async function deleteFile(folderName, fileName) {
-  const key = `${folderName}/${fileName}`;
-  await s3Client.send(new DeleteObjectCommand({Bucket: bucketName, Key: key}));
 }
 
 /**
@@ -80,7 +72,7 @@ async function listFilesInFolder(folderName) {
  * @param {string} fileName
  * @param {object} res - Express.js response object
  */
-async function streamFileToResponse(folderName, fileName, res) {
+async function streamFileToResponse({folderName, fileName, res}) {
   const key = `${folderName}/${fileName}`;
   const cmd = new GetObjectCommand({Bucket: bucketName, Key: key});
   const resp = await s3Client.send(cmd);
@@ -96,13 +88,13 @@ async function streamFileToResponse(folderName, fileName, res) {
     res.setHeader('Content-Type', resp.ContentType);
   }
   res.setHeader('Content-Length', contentLength);
-  res.setHeader('Content-Disposition', `attachment; filename=\"${fileName}\"`);
+  const disposition = contentDisposition(fileName);
+  res.setHeader('Content-Disposition', disposition);
 
   // Pipe the S3 object stream to response
   const stream = resp.Body;
   stream.pipe(res);
   stream.on('error', (err) => {
-    console.error('Stream error:', err);
     res.status(500).send('Error streaming file');
   });
 }
@@ -139,16 +131,38 @@ async function renameFolder({oldFolderName, newFolderName}) {
   }
 }
 
+async function renameFile({folderName, oldFileName, newFileName}) {
+  const prefix = folderName.endsWith('/') ? folderName : `${folderName}/`;
+  const oldKey = `${prefix}${oldFileName}`;
+  const newKey = `${prefix}${newFileName}`;
+
+  // 1) Copy the object to the new key
+  await s3Client.send(new CopyObjectCommand({
+    Bucket: bucketName,
+    CopySource: `${bucketName}/${oldKey}`,
+    Key: newKey,
+  }));
+
+  // 2) Delete the original
+  await s3Client.send(new DeleteObjectCommand({
+    Bucket: bucketName,
+    Key: oldKey,
+  }));
+}
+
 async function deleteFolder({folderName}) {
   await renameFolder({oldFolderName: folderName, newFolderName: `${folderName}-deleted/`});
+}
+async function deleteFile({fileName, folderName}) {
+  await renameFile({folderName, oldFileName: fileName, newFileName: `${fileName}-deleted`});
 }
 
 module.exports = {
   createFolder,
   fetchAllFolders,
   createFile,
-  deleteFile,
   listFilesInFolder,
   streamFileToResponse,
   deleteFolder,
+  deleteFile,
 };
