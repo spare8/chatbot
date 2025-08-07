@@ -1,6 +1,7 @@
 // server/dbInteractions/assistantDb.js
 const Assistants = require('../../models/assistant');
 const VectorStores = require('../../models/vectorStore');
+const VSFiles = require('../../models/VSFile');
 
 /**
  * Create a new assistant
@@ -14,6 +15,18 @@ async function createAssistant({name, description, instructions, model, vectorSt
   return await Assistants.create({
     name, description, instructions, model, vectorStoreId, openaiId,
   });
+}
+async function createVectorStore({name, openaiId, description, maxChunkOverlap, maxChunkSize}) {
+  if (!name || !description || !openaiId || !maxChunkOverlap || !maxChunkSize) {
+    throw new Error('Insufficient Params to create a vector store');
+  }
+  return await VectorStores.create({name, openaiId, description, maxChunkOverlap, maxChunkSize});
+}
+async function createFile({fileName, openaiId, vectorStoreId}) {
+  if (!fileName || !vectorStoreId || !openaiId) {
+    throw new Error('Insufficient Params to create a vector store');
+  }
+  return await VSFiles.create({fileName, openaiId, vectorStoreId});
 }
 
 /**
@@ -64,13 +77,6 @@ async function deleteVectorStore({vectorStoreId}) {
   return await VectorStores.findOneAndUpdate({openaiId: vectorStoreId}, {isDeleted: true});
 }
 
-async function createVectorStore({name, openaiId, description, maxChunkOverlap, maxChunkSize}) {
-  if (!name || !description || !openaiId || !maxChunkOverlap || !maxChunkSize) {
-    throw new Error('Insufficient Params to create a vector store');
-  }
-  return await VectorStores.create({name, openaiId, description, maxChunkOverlap, maxChunkSize});
-}
-
 module.exports = {
   createAssistant,
   getAssistantById,
@@ -82,4 +88,5 @@ module.exports = {
   getAllVectorStores,
   deleteVectorStore,
   getVectorStoreById,
+  createFile
 };

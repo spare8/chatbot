@@ -1,13 +1,16 @@
 const {applyCacheAndMock} = require('../../setupTests');
 const {createAssistant, updateAssistant, getAllAssistants, getAssistantById, deleteAssistant,
   createVectorStore, getAllVectorStores, deleteVectorStore, updateVectorStore, getVectorStoreById,
+  createFile
 } = require('../../../server/admin/dbInteractions');
 const Assistants = require('../../../models/assistant');
 const VectorStores = require('../../../models/vectorStore');
+const VSFiles = require('../../../models/VSFile');
 const {ObjectId} = require('mongoose').Types;
 
 applyCacheAndMock(Assistants);
 applyCacheAndMock(VectorStores);
+applyCacheAndMock(VSFiles);
 
 const assistantId = new ObjectId();
 const vectorStoreId = new ObjectId();
@@ -99,6 +102,32 @@ describe('createVectorStore', () => {
     };
     await createVectorStore(vectorStoreData);
     expect(VectorStores.create).toHaveBeenCalledWith(vectorStoreData);
+  });
+});
+describe('createFile', () => {
+  let fileData;
+  beforeEach(() => {
+    fileData = {
+      fileName: 'test-file.txt',
+      openaiId: 'test-openai-id',
+      vectorStoreId: vectorStoreId,
+    };
+  });
+  it('should throw an error if no fileName provided', async () => {
+    fileData.fileName = null;
+    await expect(createFile(fileData)).rejects.toThrow('Insufficient Params to create a vector store');
+  });
+  it('should throw an error if no vectorStoreId provided', async () => {
+    fileData.vectorStoreId = null;
+    await expect(createFile(fileData)).rejects.toThrow('Insufficient Params to create a vector store');
+  });
+  it('should throw an error if no openaiId provided', async () => {
+    fileData.openaiId = null;
+    await expect(createFile(fileData)).rejects.toThrow('Insufficient Params to create a vector store');
+  });
+  it('should create a new file with valid data', async () => {
+    await createFile(fileData);
+    expect(VSFiles.create).toHaveBeenCalledWith(fileData);
   });
 });
 
