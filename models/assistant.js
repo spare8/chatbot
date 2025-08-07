@@ -68,6 +68,10 @@ const assistantSchema = new Schema({
     default: false,
     index: true,
   },
+  vectorStoreId: {
+    type: String,
+    default: null,
+  },
 }, {
   timestamps: true,
 });
