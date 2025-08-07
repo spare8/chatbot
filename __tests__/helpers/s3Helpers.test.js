@@ -126,7 +126,7 @@ describe('S3 Helper Functions', () => {
       const chunks = [];
       res.on('data', (chunk) => chunks.push(chunk));
 
-      await streamFileToResponse('fld', 'file.txt', res);
+      await streamFileToResponse({folderName:'fld', fileName:'file.txt', res});
       await new Promise((resolve) => res.on('end', resolve));
 
       expect(res.setHeader).toHaveBeenCalledWith('Content-Type', 'text/plain');
@@ -152,7 +152,7 @@ describe('S3 Helper Functions', () => {
       const chunks = [];
       res.on('data', (chunk) => chunks.push(chunk));
 
-      await streamFileToResponse('fld', 'noType.txt', res);
+      await streamFileToResponse({folderName:'fld', fileName:'noType.txt', res});
       await new Promise((resolve) => res.on('end', resolve));
 
       expect(res.setHeader).not.toHaveBeenCalledWith('Content-Type', expect.anything());
@@ -168,7 +168,7 @@ describe('S3 Helper Functions', () => {
       __sendMock.mockResolvedValue({ContentLength: 10485761});
       const res = {status: jest.fn().mockReturnThis(), send: jest.fn()};
 
-      await streamFileToResponse('fld', 'big.file', res);
+      await streamFileToResponse({folderName:'fld', fileName:'big.file', res});
       expect(res.status).toHaveBeenCalledWith(413);
       expect(res.send).toHaveBeenCalledWith(expect.stringContaining('File too large'));
     });
@@ -185,7 +185,7 @@ describe('S3 Helper Functions', () => {
       res.send = jest.fn();
       res.setHeader = jest.fn();
 
-      await streamFileToResponse('fld', 'file.txt', res);
+      await streamFileToResponse({folderName:'fld', fileName:'file.txt', res});
       const error = new Error('Stream broken');
       mockBody.emit('error', error);
       await new Promise(process.nextTick);

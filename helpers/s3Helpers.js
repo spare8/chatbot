@@ -71,7 +71,7 @@ async function listFilesInFolder(folderName) {
  * @param {string} fileName
  * @param {object} res - Express.js response object
  */
-async function streamFileToResponse(folderName, fileName, res) {
+async function streamFileToResponse({folderName, fileName, res}) {
   const key = `${folderName}/${fileName}`;
   const cmd = new GetObjectCommand({Bucket: bucketName, Key: key});
   const resp = await s3Client.send(cmd);
@@ -93,7 +93,6 @@ async function streamFileToResponse(folderName, fileName, res) {
   const stream = resp.Body;
   stream.pipe(res);
   stream.on('error', (err) => {
-    console.error('Stream error:', err);
     res.status(500).send('Error streaming file');
   });
 }
