@@ -13,8 +13,8 @@ async function createFile({file, body: {vectorStoreId}}, res) {
   const raw = file.originalname;
   const fileName = sanitize(raw) || `${Date.now()}`;
   const openaiId = await uploadFileToOpenAI({buffer: file.buffer, fileName});
+  await addFileToVectorStore({fileId: openaiId, vectorStoreId});
   await Promise.all([
-    addFileToVectorStore({fileId: openaiId, vectorStoreId}),
     createFileDBInteraction({fileName, openaiId, vectorStoreId}),
     createFileS3Helper({
       folderName: vectorStoreId,

@@ -375,7 +375,7 @@ async function deleteVectorStore({vectorStoreId}) {
   if (!vectorStoreId) {
     throw new Error('vectorStoreId is required to delete a vector store');
   }
-  console.log('Deleting vector store:', vectorStoreId);
+  
   const response = await axios.delete(
 
       `https://api.openai.com/v1/vector_stores/${vectorStoreId}`,
@@ -402,6 +402,8 @@ async function searchVectorStoreFiles(vectorStoreId) {
   return null;
 }
 
+
+const FormData = require('form-data');
 /**
  * Upload a file to OpenAI, from disk *or* from an in-memory Buffer.
  *
@@ -418,7 +420,7 @@ async function uploadFileToOpenAI({filePath, buffer, fileName}) {
       throw new Error('Must pass fileName when uploading from buffer');
     }
     // <Buffer> + fileName instructs FormData to treat it like a file
-    formData.append('file', buffer, {fileName});
+    formData.append('file', buffer, fileName);
   } else if (filePath) {
     formData.append('file', fs.createReadStream(filePath));
   } else {
@@ -524,8 +526,10 @@ async function addFileToVectorStore({fileId, vectorStoreId}) {
         {file_id: fileId},
         {headers: openAPIHeaders},
     );
+    console.log('File added to vector store:', response.data);
     return response.data;
   } catch (err) {
+    
     console.error('Error adding file to vector store:', err.response?.data || err.message);
   }
 
@@ -935,6 +939,28 @@ async function linkVectorStore(assistantId, vectorStoreId) {
   }
 }
 
+async function waitForVectorStoreFileReady({ fileId, vectorStoreId },
+                                           maxRetries = 20,
+                                           delayMs = 2000) {
+  const url = `https://api.openai.com/v1/vector_stores/${vectorStoreId}/files/${fileId}`;
+
+  for (let i = 0; i < maxRetries; i++) {
+    const res = await axios.get(url, { headers: openAPIHeaders });
+    const status = res?.data?.status;
+
+    if (status === 'completed') {
+      console.log('✅ file ingested into vector store');
+      return true;
+    }
+    if (status === 'failed') {
+      throw new Error('Vector-store ingestion failed');
+    }
+    await new Promise(r => setTimeout(r, delayMs));
+  }
+  throw new Error('Timed-out waiting for vector-store ingestion');
+}
+
+
 
 
 
@@ -981,6 +1007,7 @@ module.exports = {
   deleteThread,
   modifyAssistant2,
   linkVectorStore,
+  waitForVectorStoreFileReady,
 
 
 };
