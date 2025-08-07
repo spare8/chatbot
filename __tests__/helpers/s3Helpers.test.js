@@ -74,7 +74,7 @@ describe('S3 Helper Functions', () => {
 
   test('createFile sends PutObjectCommand with correct body', async () => {
     const content = Buffer.from('hello');
-    await createFile('fld', 'file.txt', content);
+    await createFile({folderName: 'fld', fileName: 'file.txt', fileContent: content});
     expect(__sendMock).toHaveBeenCalledWith(
         expect.objectContaining({
           input: {Bucket: process.env.S3_BUCKET_NAME, Key: 'fld/file.txt', Body: content},

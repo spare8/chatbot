@@ -42,7 +42,7 @@ async function fetchAllFolders() {
  * @param {string} fileName
  * @param {*} fileContent
  */
-async function createFile(folderName, fileName, fileContent) {
+async function createFile({folderName, fileName, fileContent}) {
   const key = `${folderName}/${fileName}`;
   await s3Client.send(new PutObjectCommand({
     Bucket: bucketName,
