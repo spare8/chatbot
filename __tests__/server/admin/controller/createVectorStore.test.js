@@ -1,6 +1,6 @@
 const {MockResponse} = require('../../../setupTests');
 const {createVectorStore} = require('../../../../server/admin/controller/createVectorStore');
-const {createVectorStore: createVectorStoreDbInteraction} = require('../../../../server/admin/dbInteractions');
+const {createVectorStore: createVectorStoreDBInteraction} = require('../../../../server/admin/dbInteractions');
 const {createVectorStore: createVectorStoreOpenaiHelper} = require('../../../../helpers/openAI');
 const {createFolder} = require('../../../../helpers/s3Helpers');
 
@@ -24,7 +24,7 @@ describe('createVectorStore', () => {
 
   beforeAll( ()=> {
     createVectorStoreOpenaiHelper.mockResolvedValue(openaiId);
-    createVectorStoreDbInteraction.mockResolvedValue({name, description, maxChunkOverlap, maxChunkSize, openaiId});
+    createVectorStoreDBInteraction.mockResolvedValue({name, description, maxChunkOverlap, maxChunkSize, openaiId});
   });
   beforeEach(() => {
     res = new MockResponse();
@@ -35,14 +35,14 @@ describe('createVectorStore', () => {
     req.body.name = '';
     await createVectorStore(req, res);
     expect(createVectorStoreOpenaiHelper).not.toHaveBeenCalled();
-    expect(createVectorStoreDbInteraction).not.toHaveBeenCalled();
+    expect(createVectorStoreDBInteraction).not.toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(400);
   });
   it('should throw error if no description', async () => {
     req.body.description = '';
     await createVectorStore(req, res);
     expect(createVectorStoreOpenaiHelper).not.toHaveBeenCalled();
-    expect(createVectorStoreDbInteraction).not.toHaveBeenCalled();
+    expect(createVectorStoreDBInteraction).not.toHaveBeenCalled();
     expect(res.status).toHaveBeenCalledWith(400);
   });
 
@@ -50,7 +50,7 @@ describe('createVectorStore', () => {
     await createVectorStore(req, res);
     expect(createVectorStoreOpenaiHelper).toHaveBeenCalledWith({
       name, description, maxChunkOverlap, maxChunkSize});
-    expect(createVectorStoreDbInteraction).toHaveBeenCalledWith({
+    expect(createVectorStoreDBInteraction).toHaveBeenCalledWith({
       name, description, maxChunkOverlap, maxChunkSize, openaiId,
     });
     expect(createFolder).toHaveBeenCalledWith({folderName: openaiId});
