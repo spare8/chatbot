@@ -29,8 +29,8 @@ async function createFile({fileName, openaiId, vectorStoreId}) {
   await Promise.all([
     VSFiles.create({fileName, openaiId, vectorStoreId}),
     VectorStores.findOneAndUpdate(
-      {openaiId: vectorStoreId}, 
-      {$push: {files: openaiId}}
+        {openaiId: vectorStoreId},
+        {$push: {files: openaiId}},
     ),
   ]);
 }
@@ -85,7 +85,7 @@ async function deleteVectorStore({vectorStoreId}) {
 async function deleteFile({vectorStoreId, fileId}) {
   await Promise.all([
     VSFiles.findOneAndUpdate({openaiId: fileId}, {isDeleted: true}),
-    VectorStores.findOneAndUpdate({openaiId: vectorStoreId}, {$pull: {files: fileId}})
+    VectorStores.findOneAndUpdate({openaiId: vectorStoreId}, {$pull: {files: fileId}}),
   ]);
 }
 
@@ -101,5 +101,5 @@ module.exports = {
   deleteVectorStore,
   getVectorStoreById,
   createFile,
-  deleteFile
+  deleteFile,
 };

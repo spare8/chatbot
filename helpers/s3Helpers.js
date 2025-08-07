@@ -131,7 +131,7 @@ async function renameFolder({oldFolderName, newFolderName}) {
   }
 }
 
-async function renameFile({ folderName, oldFileName, newFileName }) {
+async function renameFile({folderName, oldFileName, newFileName}) {
   const prefix = folderName.endsWith('/') ? folderName : `${folderName}/`;
   const oldKey = `${prefix}${oldFileName}`;
   const newKey = `${prefix}${newFileName}`;
@@ -164,5 +164,5 @@ module.exports = {
   listFilesInFolder,
   streamFileToResponse,
   deleteFolder,
-  deleteFile
+  deleteFile,
 };

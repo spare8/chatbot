@@ -13,7 +13,7 @@ const {deleteFile} = require('./controller/deleteFile');
 const {getFile} = require('./controller/getFile');
 
 // configure multer to keep files in memory
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({storage: multer.memoryStorage()});
 
 router.get('/health', (_req, res) => {
   res.json({status: 'OK'});

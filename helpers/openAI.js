@@ -408,13 +408,15 @@ async function searchVectorStoreFiles(vectorStoreId) {
  * @param {Buffer}  [params.buffer]    – raw file buffer (from multer)
  * @param {string}  [params.filename]  – required if using buffer
  */
-async function uploadFileToOpenAI({ filePath, buffer, fileName }) {
+async function uploadFileToOpenAI({filePath, buffer, fileName}) {
   const formData = new FormData();
 
   if (buffer) {
-    if (!fileName) throw new Error('Must pass fileName when uploading from buffer');
+    if (!fileName) {
+      throw new Error('Must pass fileName when uploading from buffer');
+    }
     // <Buffer> + fileName instructs FormData to treat it like a file
-    formData.append('file', buffer, { fileName });
+    formData.append('file', buffer, {fileName});
   } else if (filePath) {
     formData.append('file', fs.createReadStream(filePath));
   } else {
@@ -425,14 +427,14 @@ async function uploadFileToOpenAI({ filePath, buffer, fileName }) {
 
   try {
     const response = await axios.post(
-      'https://api.openai.com/v1/files',
-      formData,
-      {
-        headers: {
-          ...openAPIHeaders,
-          ...formData.getHeaders(),
+        'https://api.openai.com/v1/files',
+        formData,
+        {
+          headers: {
+            ...openAPIHeaders,
+            ...formData.getHeaders(),
+          },
         },
-      }
     );
     return response.data.id;
   } catch (err) {

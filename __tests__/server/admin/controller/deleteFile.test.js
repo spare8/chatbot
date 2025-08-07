@@ -20,21 +20,21 @@ jest.mock('../../../../server/admin/dbInteractions', () => ({
 const fileId = 'testFileId';
 const vectorStoreId = 'testVectorStoreId';
 describe('deleteFile controller', () => {
-    beforeEach(() => {
-        res = MockResponse();
-        req = {
-            body: {vectorStoreId, fileId},
-        };
-    });
-    it('should return 400 if fileId or vectorStoreId is missing', async () => {
-    req.body.fileId = null
+  beforeEach(() => {
+    res = MockResponse();
+    req = {
+      body: {vectorStoreId, fileId},
+    };
+  });
+  it('should return 400 if fileId or vectorStoreId is missing', async () => {
+    req.body.fileId = null;
     await deleteFile(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
     expect(res.json).toHaveBeenCalledWith({error: 'Insufficient Params to delete a file'});
   });
-    it('should return 400 if fileId or vectorStoreId is missing', async () => {
-    req.body.vectorStoreId = null
+  it('should return 400 if fileId or vectorStoreId is missing', async () => {
+    req.body.vectorStoreId = null;
     await deleteFile(req, res);
 
     expect(res.status).toHaveBeenCalledWith(400);
@@ -51,6 +51,4 @@ describe('deleteFile controller', () => {
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({message: 'File deleted successfully'});
   });
-
-
 });

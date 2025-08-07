@@ -28,8 +28,8 @@ const vectorStoreSchema = new Schema(
       files: [
         {
           type: String,
-        }
-      ]
+        },
+      ],
     },
     {
       timestamps: true,
