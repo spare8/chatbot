@@ -4,7 +4,7 @@ const {Schema} = mongoose;
 
 const VSfileSchema = new Schema(
     {
-      name: {
+      fileName: {
         type: String,
         required: true,
       },
