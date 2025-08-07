@@ -1,4 +1,5 @@
-const {S3Client, PutObjectCommand, ListObjectsV2Command, DeleteObjectCommand, GetObjectCommand} = require('@aws-sdk/client-s3');
+const {S3Client, PutObjectCommand, ListObjectsV2Command, CopyObjectCommand,
+  DeleteObjectCommand, GetObjectCommand} = require('@aws-sdk/client-s3');
 const {AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET_NAME} = require('../config/config');
 
 // Initialize S3 client
@@ -49,16 +50,6 @@ async function createFile({folderName, fileName, fileContent}) {
     Key: key,
     Body: fileContent,
   }));
-}
-
-/**
- * Deletes a file from the specified folder.
- * @param {string} folderName
- * @param {string} fileName
- */
-async function deleteFile(folderName, fileName) {
-  const key = `${folderName}/${fileName}`;
-  await s3Client.send(new DeleteObjectCommand({Bucket: bucketName, Key: key}));
 }
 
 /**
@@ -139,16 +130,38 @@ async function renameFolder({oldFolderName, newFolderName}) {
   }
 }
 
+async function renameFile({ folderName, oldFileName, newFileName }) {
+  const prefix = folderName.endsWith('/') ? folderName : `${folderName}/`;
+  const oldKey = `${prefix}${oldFileName}`;
+  const newKey = `${prefix}${newFileName}`;
+
+  // 1) Copy the object to the new key
+  await s3Client.send(new CopyObjectCommand({
+    Bucket: bucketName,
+    CopySource: `${bucketName}/${oldKey}`,
+    Key: newKey,
+  }));
+
+  // 2) Delete the original
+  await s3Client.send(new DeleteObjectCommand({
+    Bucket: bucketName,
+    Key: oldKey,
+  }));
+}
+
 async function deleteFolder({folderName}) {
   await renameFolder({oldFolderName: folderName, newFolderName: `${folderName}-deleted/`});
+}
+async function deleteFile({fileName, folderName}) {
+  await renameFile({folderName, oldFileName: fileName, newFileName: `${fileName}-deleted`});
 }
 
 module.exports = {
   createFolder,
   fetchAllFolders,
   createFile,
-  deleteFile,
   listFilesInFolder,
   streamFileToResponse,
   deleteFolder,
+  deleteFile
 };
