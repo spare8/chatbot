@@ -128,6 +128,10 @@ describe('createFile', () => {
   it('should create a new file with valid data', async () => {
     await createFile(fileData);
     expect(VSFiles.create).toHaveBeenCalledWith(fileData);
+    expect(VectorStores.findOneAndUpdate).toHaveBeenCalledWith(
+      {openaiId: vectorStoreId},
+      {$push: {files: fileData.openaiId}}
+    );
   });
 });
 

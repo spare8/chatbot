@@ -26,7 +26,13 @@ async function createFile({fileName, openaiId, vectorStoreId}) {
   if (!fileName || !vectorStoreId || !openaiId) {
     throw new Error('Insufficient Params to create a vector store');
   }
-  return await VSFiles.create({fileName, openaiId, vectorStoreId});
+  await Promise.all([
+    VSFiles.create({fileName, openaiId, vectorStoreId}),
+    VectorStores.findOneAndUpdate(
+      {openaiId: vectorStoreId}, 
+      {$push: {files: openaiId}}
+    ),
+  ]);
 }
 
 /**
