@@ -1,3 +1,4 @@
+const contentDisposition = require('content-disposition');
 const {S3Client, PutObjectCommand, ListObjectsV2Command, CopyObjectCommand,
   DeleteObjectCommand, GetObjectCommand} = require('@aws-sdk/client-s3');
 const {AWS_REGION, AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, S3_BUCKET_NAME} = require('../config/config');
@@ -87,7 +88,8 @@ async function streamFileToResponse({folderName, fileName, res}) {
     res.setHeader('Content-Type', resp.ContentType);
   }
   res.setHeader('Content-Length', contentLength);
-  res.setHeader('Content-Disposition', `attachment; filename=\"${fileName}\"`);
+  const disposition = contentDisposition(fileName);
+  res.setHeader('Content-Disposition', disposition);
 
   // Pipe the S3 object stream to response
   const stream = resp.Body;
