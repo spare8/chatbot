@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const {
   listAssistants,
-  retrieveAssistant,
 } = require('../helpers/openAI');
 
 const CONFIG_PATH = path.join(__dirname, '..', 'config', 'assistantConfig.json');
