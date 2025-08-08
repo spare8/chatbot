@@ -375,7 +375,7 @@ async function deleteVectorStore({vectorStoreId}) {
   if (!vectorStoreId) {
     throw new Error('vectorStoreId is required to delete a vector store');
   }
-  console.log('Deleting vector store:', vectorStoreId);
+  
   const response = await axios.delete(
 
       `https://api.openai.com/v1/vector_stores/${vectorStoreId}`,
@@ -402,6 +402,8 @@ async function searchVectorStoreFiles(vectorStoreId) {
   return null;
 }
 
+
+const FormData = require('form-data');
 /**
  * Upload a file to OpenAI, from disk *or* from an in-memory Buffer.
  *
@@ -418,7 +420,7 @@ async function uploadFileToOpenAI({filePath, buffer, fileName}) {
       throw new Error('Must pass fileName when uploading from buffer');
     }
     // <Buffer> + fileName instructs FormData to treat it like a file
-    formData.append('file', buffer, {fileName});
+    formData.append('file', buffer, fileName);
   } else if (filePath) {
     formData.append('file', fs.createReadStream(filePath));
   } else {
@@ -524,8 +526,10 @@ async function addFileToVectorStore({fileId, vectorStoreId}) {
         {file_id: fileId},
         {headers: openAPIHeaders},
     );
+    console.log('File added to vector store:', response.data);
     return response.data;
   } catch (err) {
+    
     console.error('Error adding file to vector store:', err.response?.data || err.message);
   }
 
@@ -935,6 +939,48 @@ async function linkVectorStore(assistantId, vectorStoreId) {
   }
 }
 
+/**
+ * Poll OpenAI until a vector-store file finishes ingesting.
+ *
+ * @param {Object}   opts
+ * @param {string}   opts.fileId        – id returned by addFileToVectorStore
+ * @param {number?}  opts.maxRetries    – max poll attempts   (default 25)
+ * @param {number?}  opts.delayMs       – delay between polls (default 5 000 ms)
+ * @returns {Object} OpenAI vector_store.file object (status === "completed")
+ */
+async function waitForVectorStoreFileReady(
+  { fileId, maxRetries = 25, delayMs = 5000 }
+) {
+  if (!fileId) throw new Error('fileId required');
+  const url = `https://api.openai.com/v1/vector_store_files/${fileId}`;
+  console.log(`Polling for vector-store file readiness: ${url}`);
+
+  for (let i = 0; i < maxRetries; i++) {
+    try {
+      const { data } = await axios.get(url, { headers: openAPIHeaders });
+      console.log('[poll]', data.status, data.last_error ?? '');
+
+      if (data.status === 'completed') return data;        // ✅ ready
+      if (data.status === 'failed')    throw new Error(
+        `Vector-store ingestion failed: ${data.last_error?.code || ''}`
+      );
+
+      /* still "in_progress" – fall through to wait & retry */
+    } catch (err) {
+      const code = err.response?.status;
+      if (code !== 404 && code !== 400) throw err;         // real error
+      /* 404/400 = resource not ready yet – keep polling */
+    }
+
+    await new Promise(res => setTimeout(res, delayMs));
+  }
+  throw new Error('Timed-out waiting for vector-store ingestion');
+}
+
+
+
+
+
 
 
 
@@ -981,6 +1027,7 @@ module.exports = {
   deleteThread,
   modifyAssistant2,
   linkVectorStore,
+  waitForVectorStoreFileReady,
 
 
 };
