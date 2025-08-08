@@ -104,17 +104,14 @@ async function streamFileToResponse({folderName, fileName, res}) {
  * under the old prefix into a new prefix, then deleting the old ones.
  */
 async function renameFolder({oldFolderName, newFolderName}) {
-  const oldPrefix = oldFolderName.endsWith('/') ? oldFolderName : `${oldFolderName}/`;
-  const newPrefix = newFolderName.endsWith('/') ? newFolderName : `${newFolderName}/`;
-
   // 1) List everything under the old prefix
-  const listCmd = new ListObjectsV2Command({Bucket: bucketName, Prefix: oldPrefix});
+  const listCmd = new ListObjectsV2Command({Bucket: bucketName, Prefix: oldFolderName});
   const listResp = await s3Client.send(listCmd);
   const items = listResp.Contents || [];
 
   // 2) Copy each object to the new prefix
   for (const {Key: oldKey} of items) {
-    const newKey = oldKey.replace(oldPrefix, newPrefix);
+    const newKey = oldKey.replace(oldFolderName, newFolderName);
     await s3Client.send(new CopyObjectCommand({
       Bucket: bucketName,
       CopySource: `${bucketName}/${oldKey}`,
@@ -151,7 +148,11 @@ async function renameFile({folderName, oldFileName, newFileName}) {
 }
 
 async function deleteFolder({folderName}) {
-  await renameFolder({oldFolderName: folderName, newFolderName: `${folderName}-deleted/`});
+  const oldFolderName = folderName.endsWith('/') ?
+      folderName : `${folderName}/`;
+  const newFolderName = folderName.endsWith('/') ?
+      `${folderName.slice(0, -1)}-deleted/` : `${folderName}-deleted/`;
+  await renameFolder({oldFolderName, newFolderName});
 }
 async function deleteFile({fileName, folderName}) {
   await renameFile({folderName, oldFileName: fileName, newFileName: `${fileName}-deleted`});

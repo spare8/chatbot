@@ -1,6 +1,6 @@
 // pages/admin/vector-stores/index.js
-import React, { useEffect, useState, useMemo } from 'react';
-import { useRouter } from 'next/router';
+import React, {useEffect, useState, useMemo} from 'react';
+import {useRouter} from 'next/router';
 import axios from 'axios';
 import {
   AppBar,
@@ -44,14 +44,16 @@ const API_BASE = 'http://localhost:3000/vectorStore';
 const darkTheme = createTheme({
   palette: {
     mode: 'dark',
-    background: { default: '#121212', paper: '#1d1d1d' },
-    primary: { main: '#90caf9' },
+    background: {default: '#121212', paper: '#1d1d1d'},
+    primary: {main: '#90caf9'},
   },
 });
 
 const bytesToSize = (bytes = 0) => {
   const sizes = ['B', 'KB', 'MB', 'GB'];
-  if (!bytes) return '0 B';
+  if (!bytes) {
+    return '0 B';
+  }
   const i = Math.floor(Math.log(bytes) / Math.log(1024));
   return `${(bytes / 1024 ** i).toFixed(1)} ${sizes[i]}`;
 };
@@ -87,12 +89,16 @@ export default function VectorStorePage() {
   }, []);
 
   const filtered = useMemo(() => {
-    if (!search.trim()) return stores;
+    if (!search.trim()) {
+      return stores;
+    }
     const q = search.toLowerCase();
     return stores.filter((vs) => {
-      if (vs.name?.toLowerCase().includes(q)) return true;
+      if (vs.name?.toLowerCase().includes(q)) {
+        return true;
+      }
       return (vs.files || []).some((f) =>
-        (f.fileName || '').toLowerCase().includes(q)
+        (f.fileName || '').toLowerCase().includes(q),
       );
     });
   }, [search, stores]);
@@ -102,7 +108,7 @@ export default function VectorStorePage() {
     try {
       await axios.post(`${API_BASE}/create`, newVS);
       setCreateDlg(false);
-      setNewVS({ name: '', description: '', maxChunkSize: 300, maxChunkOverlap: 40 });
+      setNewVS({name: '', description: '', maxChunkSize: 300, maxChunkOverlap: 40});
       await fetchStores();
     } catch (err) {
       console.error('Error creating vector store:', err);
@@ -112,12 +118,12 @@ export default function VectorStorePage() {
   };
 
   const handleDeleteVS = (vs) => {
-    setDeleteInfo({ type: 'vs', data: vs });
+    setDeleteInfo({type: 'vs', data: vs});
   };
   const confirmDeleteVS = async () => {
     setLoading(true);
     try {
-      await axios.post(`${API_BASE}/delete`, { vectorStoreId: deleteInfo.data.openaiId });
+      await axios.post(`${API_BASE}/delete`, {vectorStoreId: deleteInfo.data.openaiId});
       setDeleteInfo(null);
       await fetchStores();
     } catch (err) {
@@ -128,15 +134,15 @@ export default function VectorStorePage() {
   };
 
   const handleDeleteFile = (vs, file) => {
-    setDeleteInfo({ type: 'file', data: { vs, file } });
+    setDeleteInfo({type: 'file', data: {vs, file}});
   };
   const confirmDeleteFile = async () => {
     setLoading(true);
     try {
-      const { vs, file } = deleteInfo.data;
+      const {vs, file} = deleteInfo.data;
       await axios.post(`${API_BASE}/deleteFile`, {
         vectorStoreId: vs.openaiId,
-        fileId:        file.openaiId,
+        fileId: file.openaiId,
       });
       setDeleteInfo(null);
       await fetchStores();
@@ -149,16 +155,18 @@ export default function VectorStorePage() {
 
   const handleFileUpload = async (vs) => {
     const file = fileInputs[vs.openaiId];
-    if (!file) return;
+    if (!file) {
+      return;
+    }
     setLoading(true);
     try {
       const fd = new FormData();
       fd.append('file', file);
       fd.append('vectorStoreId', vs.openaiId);
       await axios.post(`${API_BASE}/createFile`, fd, {
-        headers: { 'Content-Type': 'multipart/form-data' },
+        headers: {'Content-Type': 'multipart/form-data'},
       });
-      setFileInputs((p) => ({ ...p, [vs.openaiId]: null }));
+      setFileInputs((p) => ({...p, [vs.openaiId]: null}));
       await fetchStores();
       setDrawerOpen(false);
     } catch (err) {
@@ -184,7 +192,7 @@ export default function VectorStorePage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             disabled={loading}
-            sx={{ width: 300, mr: 2 }}
+            sx={{width: 300, mr: 2}}
             InputProps={{
               startAdornment: (
                 <InputAdornment position="start">
@@ -193,7 +201,7 @@ export default function VectorStorePage() {
               ),
             }}
           />
-          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+          <Typography variant="h6" sx={{flexGrow: 1}}>
             Vector Stores
           </Typography>
           <Tooltip title="Add Vector Store">
@@ -205,16 +213,16 @@ export default function VectorStorePage() {
       </AppBar>
 
       {/* Grid of Vector Stores */}
-      <Box sx={{ p: 3 }}>
+      <Box sx={{p: 3}}>
         <Grid container spacing={2}>
           {filtered.map((vs) => (
             <Grid item xs={12} md={6} lg={4} key={vs.openaiId}>
               <Card variant="outlined">
-                <CardContent sx={{ pb: 1 }}>
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
+                <CardContent sx={{pb: 1}}>
+                  <Box sx={{display: 'flex', alignItems: 'center', gap: 1, mb: 1}}>
                     <FolderIcon fontSize="small" />
                     <Typography variant="subtitle1">{vs.name}</Typography>
-                    <Box sx={{ flexGrow: 1 }} />
+                    <Box sx={{flexGrow: 1}} />
                     <Tooltip title="Delete vector store">
                       <IconButton
                         size="small"
@@ -226,10 +234,10 @@ export default function VectorStorePage() {
                       </IconButton>
                     </Tooltip>
                   </Box>
-                  <Typography variant="body2" sx={{ mb: 1, color: 'grey.400' }}>
+                  <Typography variant="body2" sx={{mb: 1, color: 'grey.400'}}>
                     {vs.description}
                   </Typography>
-                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                  <Box sx={{display: 'flex', gap: 1, flexWrap: 'wrap'}}>
                     <Chip label={`Size: ${vs.maxChunkSize}`} size="small" />
                     <Chip label={`Overlap: ${vs.maxChunkOverlap}`} size="small" />
                     <Chip
@@ -240,7 +248,7 @@ export default function VectorStorePage() {
                   <Button
                     variant="outlined"
                     fullWidth
-                    sx={{ mt: 2 }}
+                    sx={{mt: 2}}
                     onClick={() => {
                       setActiveVS(vs);
                       setDrawerOpen(true);
@@ -259,12 +267,12 @@ export default function VectorStorePage() {
             <Card
               variant="outlined"
               sx={{
-                height: 140,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: loading ? 'not-allowed' : 'pointer',
-                '&:hover': loading ? {} : { bgcolor: 'grey.900' },
+                'height': 140,
+                'display': 'flex',
+                'alignItems': 'center',
+                'justifyContent': 'center',
+                'cursor': loading ? 'not-allowed' : 'pointer',
+                '&:hover': loading ? {} : {bgcolor: 'grey.900'},
               }}
               onClick={() => !loading && setCreateDlg(true)}
             >
@@ -279,16 +287,16 @@ export default function VectorStorePage() {
         anchor="right"
         open={drawerOpen}
         onClose={() => !loading && setDrawerOpen(false)}
-        PaperProps={{ sx: { width: 380 } }}
+        PaperProps={{sx: {width: 380}}}
       >
         {activeVS && (
-          <Box sx={{ p: 2, display: 'flex', flexDirection: 'column', height: '100%' }}>
-            <Typography variant="h6" sx={{ mb: 1 }}>
+          <Box sx={{p: 2, display: 'flex', flexDirection: 'column', height: '100%'}}>
+            <Typography variant="h6" sx={{mb: 1}}>
               {activeVS.name} – Files
             </Typography>
-            <Divider sx={{ mb: 2 }} />
+            <Divider sx={{mb: 2}} />
 
-            <Box sx={{ flexGrow: 1, overflow: 'auto' }}>
+            <Box sx={{flexGrow: 1, overflow: 'auto'}}>
               <List dense>
                 {(activeVS.files || []).map((file) => (
                   <ListItem
@@ -304,35 +312,35 @@ export default function VectorStorePage() {
                       </IconButton>
                     }
                   >
-                    <FileIcon sx={{ mr: 1 }} fontSize="small" />
+                    <FileIcon sx={{mr: 1}} fontSize="small" />
                     <ListItemText
                       primary={file.fileName}
                       secondary={`${bytesToSize(file.fileSize)} • ${new Date(
-                        file.updatedAt
+                          file.updatedAt,
                       ).toLocaleString()}`}
                     />
                   </ListItem>
                 ))}
                 {activeVS.files?.length === 0 && (
-                  <Typography variant="body2" sx={{ color: 'grey.500', textAlign: 'center' }}>
+                  <Typography variant="body2" sx={{color: 'grey.500', textAlign: 'center'}}>
                     No files yet
                   </Typography>
                 )}
               </List>
             </Box>
 
-            <Divider sx={{ my: 1 }} />
+            <Divider sx={{my: 1}} />
             <input
               type="file"
               disabled={loading}
               onChange={(e) =>
-                setFileInputs((p) => ({ ...p, [activeVS.openaiId]: e.target.files[0] }))
+                setFileInputs((p) => ({...p, [activeVS.openaiId]: e.target.files[0]}))
               }
             />
             <Button
               startIcon={<UploadIcon />}
               variant="contained"
-              sx={{ mt: 1 }}
+              sx={{mt: 1}}
               onClick={() => handleFileUpload(activeVS)}
               disabled={loading || !fileInputs[activeVS.openaiId]}
             >
@@ -350,18 +358,18 @@ export default function VectorStorePage() {
         maxWidth="sm"
       >
         <DialogTitle>Create Vector Store</DialogTitle>
-        <DialogContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, pt: 2 }}>
+        <DialogContent sx={{display: 'flex', flexDirection: 'column', gap: 2, pt: 2}}>
           <TextField
             label="Name"
             value={newVS.name}
-            onChange={(e) => setNewVS((p) => ({ ...p, name: e.target.value }))}
+            onChange={(e) => setNewVS((p) => ({...p, name: e.target.value}))}
             fullWidth
             disabled={loading}
           />
           <TextField
             label="Description"
             value={newVS.description}
-            onChange={(e) => setNewVS((p) => ({ ...p, description: e.target.value }))}
+            onChange={(e) => setNewVS((p) => ({...p, description: e.target.value}))}
             fullWidth
             multiline
             disabled={loading}
@@ -371,7 +379,7 @@ export default function VectorStorePage() {
             type="number"
             value={newVS.maxChunkSize}
             onChange={(e) =>
-              setNewVS((p) => ({ ...p, maxChunkSize: Number(e.target.value) }))
+              setNewVS((p) => ({...p, maxChunkSize: Number(e.target.value)}))
             }
             fullWidth
             disabled={loading}
@@ -381,7 +389,7 @@ export default function VectorStorePage() {
             type="number"
             value={newVS.maxChunkOverlap}
             onChange={(e) =>
-              setNewVS((p) => ({ ...p, maxChunkOverlap: Number(e.target.value) }))
+              setNewVS((p) => ({...p, maxChunkOverlap: Number(e.target.value)}))
             }
             fullWidth
             disabled={loading}
@@ -404,7 +412,7 @@ export default function VectorStorePage() {
           <DialogContent>
             {deleteInfo.type === 'vs' ? (
               <>
-                <Typography sx={{ mb: 1 }}>
+                <Typography sx={{mb: 1}}>
                   Delete vector store <b>{deleteInfo.data.name}</b>?
                 </Typography>
                 <Typography variant="body2">

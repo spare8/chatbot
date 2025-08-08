@@ -72,7 +72,8 @@ describe('createFile controller', () => {
     expect(uploadFileToOpenAI).toHaveBeenCalledWith({buffer, fileName: sanitizedName});
     expect(addFileToVectorStore).toHaveBeenCalledWith({fileId: openaiId, vectorStoreId});
     expect(createFileDB).toHaveBeenCalledWith({fileName: sanitizedName, openaiId, vectorStoreId, fileSize});
-    expect(createFileS3Helper).toHaveBeenCalledWith({folderName: vectorStoreId, fileName: sanitizedName, fileContent: buffer});
+    expect(createFileS3Helper).toHaveBeenCalledWith({
+      folderName: vectorStoreId, fileName: sanitizedName, fileContent: buffer});
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({message: 'File uploaded successfully'});
   });
@@ -84,8 +85,10 @@ describe('createFile controller', () => {
     await createFile(req, res);
     expect(uploadFileToOpenAI).toHaveBeenCalledWith({buffer, fileName: fallbackName});
     expect(addFileToVectorStore).toHaveBeenCalledWith({fileId: openaiId, vectorStoreId});
-    expect(createFileDB).toHaveBeenCalledWith({fileName: fallbackName, openaiId, vectorStoreId, fileSize});
-    expect(createFileS3Helper).toHaveBeenCalledWith({folderName: vectorStoreId, fileName: fallbackName, fileContent: buffer});
+    expect(createFileDB).toHaveBeenCalledWith({
+      fileName: fallbackName, openaiId, vectorStoreId, fileSize});
+    expect(createFileS3Helper).toHaveBeenCalledWith({
+      folderName: vectorStoreId, fileName: fallbackName, fileContent: buffer});
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({message: 'File uploaded successfully'});
   });

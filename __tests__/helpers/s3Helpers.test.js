@@ -1,6 +1,7 @@
 // __tests__/helpers/s3Helpers.test.js
 require('dotenv').config();
 const {PassThrough} = require('stream');
+const {S3_BUCKET_NAME} = require('../../config/config');
 
 // Mock AWS SDK S3Client and capture send calls
 jest.mock('@aws-sdk/client-s3', () => {
@@ -49,7 +50,7 @@ describe('S3 Helper Functions', () => {
     await createFolder({folderName: 'my-folder'});
     expect(__sendMock).toHaveBeenCalledWith(
         expect.objectContaining({
-          input: {Bucket: process.env.S3_BUCKET_NAME, Key: 'my-folder/'},
+          input: {Bucket: S3_BUCKET_NAME, Key: 'my-folder/'},
         }),
     );
   });
@@ -58,7 +59,7 @@ describe('S3 Helper Functions', () => {
     await createFolder({folderName: 'my-folder/'});
     expect(__sendMock).toHaveBeenCalledWith(
         expect.objectContaining({
-          input: {Bucket: process.env.S3_BUCKET_NAME, Key: 'my-folder/'},
+          input: {Bucket: S3_BUCKET_NAME, Key: 'my-folder/'},
         }),
     );
   });
@@ -80,7 +81,7 @@ describe('S3 Helper Functions', () => {
     await createFile({folderName: 'fld', fileName: 'file.txt', fileContent: content});
     expect(__sendMock).toHaveBeenCalledWith(
         expect.objectContaining({
-          input: {Bucket: process.env.S3_BUCKET_NAME, Key: 'fld/file.txt', Body: content},
+          input: {Bucket: S3_BUCKET_NAME, Key: 'fld/file.txt', Body: content},
         }),
     );
   });
@@ -200,7 +201,14 @@ describe('S3 Helper Functions', () => {
       __sendMock.mockResolvedValue({Contents: []});
       await deleteFolder({folderName: 'fld'});
       expect(__sendMock).toHaveBeenCalledWith(
-          expect.objectContaining({input: {Bucket: process.env.S3_BUCKET_NAME, Prefix: 'fld/'}}),
+          expect.objectContaining({input: {Bucket: S3_BUCKET_NAME, Prefix: 'fld/'}}),
+      );
+    });
+    test('handles empty response', async () => {
+      __sendMock.mockResolvedValue({});
+      await deleteFolder({folderName: 'fld'});
+      expect(__sendMock).toHaveBeenCalledWith(
+          expect.objectContaining({input: {Bucket: S3_BUCKET_NAME, Prefix: 'fld/'}}),
       );
     });
 
@@ -215,15 +223,15 @@ describe('S3 Helper Functions', () => {
       // list
       expect(__sendMock).toHaveBeenNthCalledWith(
           1,
-          expect.objectContaining({input: {Bucket: process.env.S3_BUCKET_NAME, Prefix: 'fld/'}}),
+          expect.objectContaining({input: {Bucket: S3_BUCKET_NAME, Prefix: 'fld/'}}),
       );
       // copy
       expect(__sendMock).toHaveBeenNthCalledWith(
           2,
           expect.objectContaining({
             input: {
-              Bucket: process.env.S3_BUCKET_NAME,
-              CopySource: `${process.env.S3_BUCKET_NAME}/fld/a.txt`,
+              Bucket: S3_BUCKET_NAME,
+              CopySource: `${S3_BUCKET_NAME}/fld/a.txt`,
               Key: 'fld-deleted/a.txt',
             },
           }),
@@ -232,8 +240,8 @@ describe('S3 Helper Functions', () => {
           3,
           expect.objectContaining({
             input: {
-              Bucket: process.env.S3_BUCKET_NAME,
-              CopySource: `${process.env.S3_BUCKET_NAME}/fld/b.jpg`,
+              Bucket: S3_BUCKET_NAME,
+              CopySource: `${S3_BUCKET_NAME}/fld/b.jpg`,
               Key: 'fld-deleted/b.jpg',
             },
           }),
@@ -241,11 +249,55 @@ describe('S3 Helper Functions', () => {
       // delete originals
       expect(__sendMock).toHaveBeenNthCalledWith(
           4,
-          expect.objectContaining({input: {Bucket: process.env.S3_BUCKET_NAME, Key: 'fld/a.txt'}}),
+          expect.objectContaining({input: {Bucket: S3_BUCKET_NAME, Key: 'fld/a.txt'}}),
       );
       expect(__sendMock).toHaveBeenNthCalledWith(
           5,
-          expect.objectContaining({input: {Bucket: process.env.S3_BUCKET_NAME, Key: 'fld/b.jpg'}}),
+          expect.objectContaining({input: {Bucket: S3_BUCKET_NAME, Key: 'fld/b.jpg'}}),
+      );
+    });
+    test('renames all files in folder even if it ends with /', async () => {
+      const items = [{Key: 'fld/a.txt'}, {Key: 'fld/b.jpg'}];
+      __sendMock
+          .mockResolvedValueOnce({Contents: items}) // list
+          .mockResolvedValue({}); // copy and delete calls
+
+      await deleteFolder({folderName: 'fld/'});
+
+      // list
+      expect(__sendMock).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({input: {Bucket: S3_BUCKET_NAME, Prefix: 'fld/'}}),
+      );
+      // copy
+      expect(__sendMock).toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({
+            input: {
+              Bucket: S3_BUCKET_NAME,
+              CopySource: `${S3_BUCKET_NAME}/fld/a.txt`,
+              Key: 'fld-deleted/a.txt',
+            },
+          }),
+      );
+      expect(__sendMock).toHaveBeenNthCalledWith(
+          3,
+          expect.objectContaining({
+            input: {
+              Bucket: S3_BUCKET_NAME,
+              CopySource: `${S3_BUCKET_NAME}/fld/b.jpg`,
+              Key: 'fld-deleted/b.jpg',
+            },
+          }),
+      );
+      // delete originals
+      expect(__sendMock).toHaveBeenNthCalledWith(
+          4,
+          expect.objectContaining({input: {Bucket: S3_BUCKET_NAME, Key: 'fld/a.txt'}}),
+      );
+      expect(__sendMock).toHaveBeenNthCalledWith(
+          5,
+          expect.objectContaining({input: {Bucket: S3_BUCKET_NAME, Key: 'fld/b.jpg'}}),
       );
     });
   });
@@ -264,8 +316,8 @@ describe('S3 Helper Functions', () => {
           1,
           expect.objectContaining({
             input: {
-              Bucket: process.env.S3_BUCKET_NAME,
-              CopySource: `${process.env.S3_BUCKET_NAME}/fld/test.txt`,
+              Bucket: S3_BUCKET_NAME,
+              CopySource: `${S3_BUCKET_NAME}/fld/test.txt`,
               Key: 'fld/test.txt-deleted',
             },
           }),
@@ -275,7 +327,37 @@ describe('S3 Helper Functions', () => {
           2,
           expect.objectContaining({
             input: {
-              Bucket: process.env.S3_BUCKET_NAME,
+              Bucket: S3_BUCKET_NAME,
+              Key: 'fld/test.txt',
+            },
+          }),
+      );
+    });
+    test('renames file by copying and deleting original even if / is added to file name', async () => {
+      const folderName = 'fld/';
+      const fileName = 'test.txt';
+      // first call for copy, second for delete
+      __sendMock
+          .mockResolvedValueOnce({})
+          .mockResolvedValueOnce({});
+      await deleteFile({folderName, fileName});
+      // CopyObjectCommand expected
+      expect(__sendMock).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({
+            input: {
+              Bucket: S3_BUCKET_NAME,
+              CopySource: `${S3_BUCKET_NAME}/fld/test.txt`,
+              Key: 'fld/test.txt-deleted',
+            },
+          }),
+      );
+      // DeleteObjectCommand expected
+      expect(__sendMock).toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({
+            input: {
+              Bucket: S3_BUCKET_NAME,
               Key: 'fld/test.txt',
             },
           }),

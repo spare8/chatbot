@@ -1,7 +1,7 @@
 // tools/escalateTool.js
 
-async function escalateToHuman({issue_description}) {
-  console.log('🚨 escalateToHuman CALLED with:', issue_description);
+function escalateToHuman({issueDescription}) {
+  console.log('🚨 escalateToHuman CALLED with:', issueDescription);
   return {
     status: 'success',
     message: 'This is a test. Escalation was triggered successfully.',
@@ -17,12 +17,12 @@ module.exports = {
       parameters: {
         type: 'object',
         properties: {
-          issue_description: {
+          issueDescription: {
             type: 'string',
             description: 'Description of the user issue or complaint.',
           },
         },
-        required: ['issue_description'],
+        required: ['issueDescription'],
       },
     },
   },

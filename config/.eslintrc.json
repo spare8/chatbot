@@ -14,7 +14,8 @@
     "parserOptions": {
         // 2022 is fully supported by node 18, 
         // if we increase node version we can increment this
-        "ecmaVersion": 2022
+        "ecmaVersion": 2022,
+        "sourceType": "script"
     },
     "plugins": ["import", "jest"],
     "globals": {
@@ -24,12 +25,30 @@
         "Buffer": true
     },
     "overrides": [
-        {
-          "files": ["*.test.js", "__tests__/**/*.js"],
-          "rules": {
-            "node/no-unpublished-require": "off"
-          }
+      {
+        "files": ["pages/**/*.js", "components/**/*.js"],
+        "parserOptions": {
+          "ecmaVersion": 2022,
+          "sourceType": "module",
+          "ecmaFeatures": { "jsx": true }
+        },
+        "env": {
+          "browser": true,
+          "node": false
+        },
+        "extends": [
+          "plugin:react/recommended",
+          "plugin:@next/next/recommended"
+        ],
+        "plugins": ["react"],
+        "settings": {
+          "react": { "version": "detect" }
+        },
+        "rules": {
+          "node/no-unsupported-features/es-syntax": "off",
+          "react/react-in-jsx-scope": "off"
         }
+      }
     ],
     "ignorePatterns": ["docs/", "node_modules" , "config/next.config.js"],
     "rules": {
@@ -59,7 +78,7 @@
         "import/export": "error",
         "consistent-return": "error",
         "require-await": "error",
-        "no-return-await": "warn",
+        "no-return-await": "error",
         "no-process-env": "error",
         "prefer-destructuring": ["warn", {"object": true, "array": true}],
         "no-unused-vars": ["warn", { "args": "after-used", "ignoreRestSiblings": true }],

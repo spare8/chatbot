@@ -8,7 +8,7 @@ const {
 
 const VS_CONFIG_PATH = path.join(__dirname, '..', 'config', 'VSConfig.json');
 
-async function loadVSConfig() {
+function loadVSConfig() {
   if (!fs.existsSync(VS_CONFIG_PATH)) {
     console.error('VSConfig.json not found');
     return {};
@@ -76,7 +76,8 @@ async function validateVectorStores() {
   const allFiles = await listAllFiles();
   for (const file of allFiles) {
     if (!remoteFilesInVS.has(file.id)) {
-      console.warn(`File '${file.id}' (name: '${file.filename}') exists in OpenAI but is not linked to any vector store`);
+      console.warn(`File '${file.id}' (name: '${
+        file.filename}') exists in OpenAI but is not linked to any vector store`);
     }
   }
 

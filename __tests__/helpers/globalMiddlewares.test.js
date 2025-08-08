@@ -64,7 +64,7 @@ describe('globalMiddlewares', () => {
 
     // And exactly one error‐handler was mounted at the end
     expect(app.use).toHaveBeenCalledTimes(1);
-    const errMw = app.use.mock.calls[0][0];
+    const [[errMw]] = app.use.mock.calls;
     expect(errMw.name).toBe('errorReporterMiddleware');
     expect(errMw.length).toBe(4); // (error, req, res, next)
   });
@@ -97,7 +97,7 @@ describe('globalMiddlewares', () => {
 
   it('errorReporterMiddleware logs & returns 500 JSON on error', async () => {
     applyErrorReporterMiddleware(app);
-    const errMw = app.use.mock.calls[0][0];
+    const [[errMw]] = app.use.mock.calls;
 
     const err = new Error('failure');
     const req = {baseUrl: '/api', path: '/endpoint'};
@@ -121,7 +121,7 @@ describe('globalMiddlewares', () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
 
     applyErrorReporterMiddleware(app);
-    const errMw = app.use.mock.calls[0][0];
+    const [[errMw]] = app.use.mock.calls;
 
     const err = new Error('whoops');
     const req = {baseUrl: '/foo', path: '/bar'};
@@ -144,7 +144,7 @@ describe('globalMiddlewares', () => {
 
     // app.use should still be called once with the error handler
     expect(app.use).toHaveBeenCalledTimes(1);
-    const errMw = app.use.mock.calls[0][0];
+    const [[errMw]] = app.use.mock.calls;
     expect(errMw.name).toBe('errorReporterMiddleware');
     expect(errMw.length).toBe(4);
   });
@@ -156,7 +156,7 @@ describe('globalMiddlewares', () => {
     expect(() => applyErrorReporterMiddleware(app)).not.toThrow();
 
     expect(app.use).toHaveBeenCalledTimes(1);
-    const errMw = app.use.mock.calls[0][0];
+    const [[errMw]] = app.use.mock.calls;
     expect(errMw.name).toBe('errorReporterMiddleware');
     expect(errMw.length).toBe(4);
   });

@@ -10,7 +10,8 @@ async function createAssistant(req, res) {
     description = '',
     model,
     tools = [],
-    tool_resources = {},
+    toolResources = {},
+    temperature,
   } = req.body;
 
   // Validate required fields
@@ -25,7 +26,7 @@ async function createAssistant(req, res) {
     description,
     model,
     tools,
-    tool_resources,
+    toolResources,
   });
 
   // Persist the assistant in MongoDB
@@ -36,8 +37,8 @@ async function createAssistant(req, res) {
     model,
     openaiId,
     tools,
-    toolResources: tool_resources,
-    temperature
+    toolResources,
+    temperature,
   });
 
   // Respond with the created assistant

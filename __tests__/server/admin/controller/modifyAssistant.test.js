@@ -22,7 +22,7 @@ describe('updateAssistant', () => {
     model: 'gpt-3.5-turbo',
     description: 'A friendly assistant',
     tools: [],
-    tool_resources: {},
+    toolResources: {},
     vectorStoreIds: [],
     metadata: {},
   };
@@ -73,7 +73,7 @@ describe('updateAssistant', () => {
       description: validBody.description,
       model: validBody.model,
       tools: validBody.tools,
-      tool_resources: validBody.tool_resources,
+      toolResources: validBody.toolResources,
       metadata: validBody.metadata,
     });
 
@@ -85,7 +85,7 @@ describe('updateAssistant', () => {
       description: validBody.description,
       model: validBody.model,
       tools: validBody.tools,
-      toolResources: validBody.tool_resources,
+      toolResources: validBody.toolResources,
       vectorStores: validBody.vectorStoreIds,
       metadata: validBody.metadata,
     });
@@ -107,7 +107,7 @@ describe('updateAssistant', () => {
   // Arrange
     const vsIds = ['vs1', 'vs2'];
     req.body.tools = []; // no tools initially
-    req.body.tool_resources = {}; // empty resources
+    req.body.toolResources = {}; // empty resources
     req.body.vectorStoreIds = vsIds; // trigger the branch
 
     // Stub OpenAI helper to return something truthy
@@ -130,7 +130,7 @@ describe('updateAssistant', () => {
         expect.objectContaining({
           assistantId: req.body.assistantId,
           tools: [{type: 'file_search'}],
-          tool_resources: {file_search: {vector_store_ids: vsIds}},
+          toolResources: {file_search: {vector_store_ids: vsIds}},
         }),
     );
 

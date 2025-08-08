@@ -1,6 +1,7 @@
 // server/models/tool.js
 const mongoose = require('mongoose');
 const {Schema} = mongoose;
+const {TOOL_TYPES} = require('../config/constants');
 
 // Define all supported tool types here or import from a constants file
 
