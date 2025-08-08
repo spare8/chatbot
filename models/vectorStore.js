@@ -43,17 +43,17 @@ const vectorStoreSchema = new Schema(
           ret.files = ret.vsFiles;
           delete ret.vsFiles;
           return ret;
-        },
+        }
       },
-      toObject: {virtuals: true},
+      toObject: { virtuals: true },
     },
 );
 
 vectorStoreSchema.virtual('vsFiles', {
-  ref: 'VSFile', // the model to use
-  localField: 'files', // this array of openaiId strings
+  ref: 'VSFile',            // the model to use
+  localField: 'files',      // this array of openaiId strings
   foreignField: 'openaiId', // in VSFile documents
-  justOne: false, // returns an array
+  justOne: false,           // returns an array
 });
 
 const VectorStores = mongoose.model('VectorStore', vectorStoreSchema);
