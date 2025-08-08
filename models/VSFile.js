@@ -19,6 +19,9 @@ const VSfileSchema = new Schema(
       isDeleted: {
         type: Boolean,
       },
+      fileSize: {
+        type: Number,
+      },
     },
     {
       timestamps: true,

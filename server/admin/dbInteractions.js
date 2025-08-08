@@ -22,12 +22,12 @@ async function createVectorStore({name, openaiId, description, maxChunkOverlap, 
   }
   return await VectorStores.create({name, openaiId, description, maxChunkOverlap, maxChunkSize});
 }
-async function createFile({fileName, openaiId, vectorStoreId}) {
-  if (!fileName || !vectorStoreId || !openaiId) {
+async function createFile({fileName, openaiId, vectorStoreId, fileSize}) {
+  if (!fileName || !vectorStoreId || !openaiId || !fileSize) {
     throw new Error('Insufficient Params to create a vector store');
   }
   await Promise.all([
-    VSFiles.create({fileName, openaiId, vectorStoreId}),
+    VSFiles.create({fileName, openaiId, vectorStoreId, fileSize}),
     VectorStores.findOneAndUpdate(
         {openaiId: vectorStoreId},
         {$push: {files: openaiId}},
@@ -55,7 +55,8 @@ async function getAllAssistants() {
   return await Assistants.find({isDeleted: {$ne: true}});
 }
 async function getAllVectorStores() {
-  return await VectorStores.find({isDeleted: {$ne: true}}).populate('vsFiles', 'fileName openaiId') ;
+  return await VectorStores.find({isDeleted: {$ne: true}})
+    .populate('vsFiles', 'fileName openaiId createdAt fileSize') ;
 }
 
 /**
