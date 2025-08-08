@@ -32,6 +32,7 @@ describe('createFile controller', () => {
   const rawName = 'te<>st?.txt';
   const sanitizedName = 'test.txt';
   const buffer = Buffer.from('content');
+  const fileSize = 42;
 
   beforeAll(() => {
     uploadFileToOpenAI.mockResolvedValue(openaiId);
@@ -39,7 +40,7 @@ describe('createFile controller', () => {
   beforeEach(() => {
     res = new MockResponse();
     req = {
-      file: {originalname: rawName, buffer},
+      file: {originalname: rawName, buffer, size: fileSize},
       body: {vectorStoreId},
     };
   });
@@ -47,9 +48,10 @@ describe('createFile controller', () => {
   it('returns 400 if missing file or params', async () => {
     const badReqs = [
       {file: null, body: {vectorStoreId}},
-      {file: {originalname: null, buffer}, body: {vectorStoreId}},
-      {file: {originalname: rawName, buffer: null}, body: {vectorStoreId}},
-      {file: {originalname: rawName, buffer}, body: {vectorStoreId: ''}},
+      {file: {originalname: null, buffer, fileSize}, body: {vectorStoreId}},
+      {file: {originalname: rawName, buffer: null, fileSize}, body: {vectorStoreId}},
+      {file: {originalname: rawName, buffer, fileSize: null}, body: {vectorStoreId}},
+      {file: {originalname: rawName, buffer, fileSize}, body: {vectorStoreId: ''}},
     ];
     for (const bad of badReqs) {
       await createFile(bad, res);
@@ -69,7 +71,7 @@ describe('createFile controller', () => {
     await createFile(req, res);
     expect(uploadFileToOpenAI).toHaveBeenCalledWith({buffer, fileName: sanitizedName});
     expect(addFileToVectorStore).toHaveBeenCalledWith({fileId: openaiId, vectorStoreId});
-    expect(createFileDB).toHaveBeenCalledWith({fileName: sanitizedName, openaiId, vectorStoreId});
+    expect(createFileDB).toHaveBeenCalledWith({fileName: sanitizedName, openaiId, vectorStoreId, fileSize});
     expect(createFileS3Helper).toHaveBeenCalledWith({folderName: vectorStoreId, fileName: sanitizedName, fileContent: buffer});
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({message: 'File uploaded successfully'});
@@ -82,7 +84,7 @@ describe('createFile controller', () => {
     await createFile(req, res);
     expect(uploadFileToOpenAI).toHaveBeenCalledWith({buffer, fileName: fallbackName});
     expect(addFileToVectorStore).toHaveBeenCalledWith({fileId: openaiId, vectorStoreId});
-    expect(createFileDB).toHaveBeenCalledWith({fileName: fallbackName, openaiId, vectorStoreId});
+    expect(createFileDB).toHaveBeenCalledWith({fileName: fallbackName, openaiId, vectorStoreId, fileSize});
     expect(createFileS3Helper).toHaveBeenCalledWith({folderName: vectorStoreId, fileName: fallbackName, fileContent: buffer});
     expect(res.status).toHaveBeenCalledWith(200);
     expect(res.json).toHaveBeenCalledWith({message: 'File uploaded successfully'});

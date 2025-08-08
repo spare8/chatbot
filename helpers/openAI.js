@@ -375,7 +375,7 @@ async function deleteVectorStore({vectorStoreId}) {
   if (!vectorStoreId) {
     throw new Error('vectorStoreId is required to delete a vector store');
   }
-  
+
   const response = await axios.delete(
 
       `https://api.openai.com/v1/vector_stores/${vectorStoreId}`,
@@ -529,7 +529,6 @@ async function addFileToVectorStore({fileId, vectorStoreId}) {
     console.log('File added to vector store:', response.data);
     return response.data;
   } catch (err) {
-    
     console.error('Error adding file to vector store:', err.response?.data || err.message);
   }
 
@@ -918,7 +917,7 @@ async function linkVectorStore(assistantId, vectorStoreId) {
   }
 
   const payload = {
-    tools: [{ type: 'file_search' }],
+    tools: [{type: 'file_search'}],
     tool_resources: {
       file_search: {
         vector_store_ids: [vectorStoreId],
@@ -928,9 +927,9 @@ async function linkVectorStore(assistantId, vectorStoreId) {
 
   try {
     const response = await axios.post(
-      `https://api.openai.com/v1/assistants/${assistantId}`,
-      payload,
-      { headers: openAPIHeaders }
+        `https://api.openai.com/v1/assistants/${assistantId}`,
+        payload,
+        {headers: openAPIHeaders},
     );
     return response.data;
   } catch (err) {
@@ -949,39 +948,41 @@ async function linkVectorStore(assistantId, vectorStoreId) {
  * @returns {Object} OpenAI vector_store.file object (status === "completed")
  */
 async function waitForVectorStoreFileReady(
-  { fileId, maxRetries = 25, delayMs = 5000 }
+    {fileId, maxRetries = 25, delayMs = 5000},
 ) {
-  if (!fileId) throw new Error('fileId required');
+  if (!fileId) {
+    throw new Error('fileId required');
+  }
   const url = `https://api.openai.com/v1/vector_store_files/${fileId}`;
   console.log(`Polling for vector-store file readiness: ${url}`);
 
   for (let i = 0; i < maxRetries; i++) {
     try {
-      const { data } = await axios.get(url, { headers: openAPIHeaders });
+      const {data} = await axios.get(url, {headers: openAPIHeaders});
       console.log('[poll]', data.status, data.last_error ?? '');
 
-      if (data.status === 'completed') return data;        // ✅ ready
-      if (data.status === 'failed')    throw new Error(
-        `Vector-store ingestion failed: ${data.last_error?.code || ''}`
-      );
+      if (data.status === 'completed') {
+        return data;
+      } // ✅ ready
+      if (data.status === 'failed') {
+        throw new Error(
+            `Vector-store ingestion failed: ${data.last_error?.code || ''}`,
+        );
+      }
 
       /* still "in_progress" – fall through to wait & retry */
     } catch (err) {
       const code = err.response?.status;
-      if (code !== 404 && code !== 400) throw err;         // real error
+      if (code !== 404 && code !== 400) {
+        throw err;
+      } // real error
       /* 404/400 = resource not ready yet – keep polling */
     }
 
-    await new Promise(res => setTimeout(res, delayMs));
+    await new Promise((res) => setTimeout(res, delayMs));
   }
   throw new Error('Timed-out waiting for vector-store ingestion');
 }
-
-
-
-
-
-
 
 
 module.exports = {

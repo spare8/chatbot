@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "AI chat for customer service and sales agent",
   "main": "index.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "scripts": {
     "test": "jest --verbose --coverage --config=config/jest.config.js",
     "test-staged": "node scripts/testStaged.js",
@@ -10,7 +13,7 @@
     "file-validate": "node scripts/vectorStoreValidate.js",
     "start": "node app/index.js",
     "prepare": "husky install && chmod +x .husky/pre-commit",
-    "pre-commit": " ",
+    "pre-commit": "npx lint-staged -c ./config/.lintstagedrc.json && npm run find-circular-deps && npm run depcheck && npm run test-staged",
     "lint": "eslint --fix . -c ./config/.eslintrc.json",
     "depcheck": "depcheck",
     "find-circular-deps": "madge --circular helpers",
@@ -40,7 +43,6 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.0",
     "@mui/material": "^7.3.0",
-    "aws": "^0.0.3-2",
     "axios": "^1.10.0",
     "content-disposition": "^1.0.0",
     "cors": "^2.8.5",

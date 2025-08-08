@@ -111,6 +111,7 @@ describe('createFile', () => {
       fileName: 'test-file.txt',
       openaiId: 'test-openai-id',
       vectorStoreId: vectorStoreId,
+      fileSize: 42,
     };
   });
   it('should throw an error if no fileName provided', async () => {
@@ -123,6 +124,10 @@ describe('createFile', () => {
   });
   it('should throw an error if no openaiId provided', async () => {
     fileData.openaiId = null;
+    await expect(createFile(fileData)).rejects.toThrow('Insufficient Params to create a vector store');
+  });
+  it('should throw an error if no fileSize provided', async () => {
+    fileData.fileSize = null;
     await expect(createFile(fileData)).rejects.toThrow('Insufficient Params to create a vector store');
   });
   it('should create a new file with valid data', async () => {
