@@ -40,22 +40,22 @@ async function createFile({fileName, openaiId, vectorStoreId, fileSize}) {
  * @param {String} id - Assistant ObjectId
  * @returns {Promise<Object|null>} - Found assistant or null
  */
-async function getAssistantById({assistantId}) {
-  return await Assistants.findOne({openaiId: assistantId});
+function getAssistantById({assistantId}) {
+  return Assistants.findOne({openaiId: assistantId});
 }
-async function getVectorStoreById({vectorStoreId}) {
-  return await VectorStores.findOne({openaiId: vectorStoreId});
+function getVectorStoreById({vectorStoreId}) {
+  return VectorStores.findOne({openaiId: vectorStoreId});
 }
 
 /**
  * Retrieve all assistants
  * @returns {Promise<Array>} - Array of assistant documents
  */
-async function getAllAssistants() {
-  return await Assistants.find({isDeleted: {$ne: true}});
+function getAllAssistants() {
+  return Assistants.find({isDeleted: {$ne: true}});
 }
-async function getAllVectorStores() {
-  return await VectorStores.find({isDeleted: {$ne: true}})
+function getAllVectorStores() {
+  return VectorStores.find({isDeleted: {$ne: true}})
       .populate('vsFiles', 'fileName openaiId createdAt fileSize');
 }
 
@@ -65,12 +65,12 @@ async function getAllVectorStores() {
  * @param {Object} data - Fields to update
  * @returns {Promise<Object|null>} - Updated assistant or null
  */
-async function updateAssistant({assistantId, name, description, instructions, model, vectorStoreId}) {
-  return await Assistants.findOneAndUpdate({openaiId: assistantId},
+function updateAssistant({assistantId, name, description, instructions, model, vectorStoreId}) {
+  return Assistants.findOneAndUpdate({openaiId: assistantId},
       {name, description, instructions, model, vectorStoreId}, {new: true});
 }
-async function updateVectorStore({vectorStoreId, name, description}) {
-  return await VectorStores.findOneAndUpdate({openaiId: vectorStoreId}, {name, description}, {new: true});
+function updateVectorStore({vectorStoreId, name, description}) {
+  return VectorStores.findOneAndUpdate({openaiId: vectorStoreId}, {name, description}, {new: true});
 }
 
 /**
@@ -78,11 +78,11 @@ async function updateVectorStore({vectorStoreId, name, description}) {
  * @param {String} id - Assistant ObjectId
  * @returns {Promise<Object|null>} - Deleted assistant or null
  */
-async function deleteAssistant({assistantId}) {
-  return await Assistants.findOneAndUpdate({openaiId: assistantId}, {isDeleted: true});
+function deleteAssistant({assistantId}) {
+  return Assistants.findOneAndUpdate({openaiId: assistantId}, {isDeleted: true});
 }
-async function deleteVectorStore({vectorStoreId}) {
-  return await VectorStores.findOneAndUpdate({openaiId: vectorStoreId}, {isDeleted: true});
+function deleteVectorStore({vectorStoreId}) {
+  return VectorStores.findOneAndUpdate({openaiId: vectorStoreId}, {isDeleted: true});
 }
 async function deleteFile({vectorStoreId, fileId}) {
   await Promise.all([
