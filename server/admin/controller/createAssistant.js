@@ -37,6 +37,7 @@ async function createAssistant(req, res) {
     openaiId,
     tools,
     toolResources: tool_resources,
+    temperature
   });
 
   // Respond with the created assistant
