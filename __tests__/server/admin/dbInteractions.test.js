@@ -24,7 +24,8 @@ describe('createAssistant', () => {
       instructions: 'Test instructions',
       model: 'gpt-3.5-turbo',
     };
-    await expect(createAssistant(assistantData)).rejects.toThrow('Name, model and openaiId are required to create an assistant');
+    await expect(createAssistant(assistantData)).rejects
+        .toThrow('Name, model and openaiId are required to create an assistant');
   });
   it('should throw an error if no model provided', async () => {
     const assistantData = {
@@ -33,7 +34,8 @@ describe('createAssistant', () => {
       description: 'This is a test assistant',
       instructions: 'Test instructions',
     };
-    await expect(createAssistant(assistantData)).rejects.toThrow('Name, model and openaiId are required to create an assistant');
+    await expect(createAssistant(assistantData)).rejects
+        .toThrow('Name, model and openaiId are required to create an assistant');
   });
   it('should throw an error if no model provided', async () => {
     const assistantData = {
@@ -42,7 +44,8 @@ describe('createAssistant', () => {
       instructions: 'Test instructions',
       model: 'gpt-3.5-turbo',
     };
-    await expect(createAssistant(assistantData)).rejects.toThrow('Name, model and openaiId are required to create an assistant');
+    await expect(createAssistant(assistantData)).rejects
+        .toThrow('Name, model and openaiId are required to create an assistant');
   });
   it('should create a new assistant with valid data', async () => {
     const assistantData = {
@@ -93,13 +96,6 @@ describe('createVectorStore', () => {
         .toThrow('Insufficient Params to create a vector store');
   });
   it('should create a new vector store with valid data', async () => {
-    const vectorStoreData = {
-      name: 'Test Vector Store',
-      openaiId: 'test-openai-id',
-      description: 'This is a test vector store',
-      maxChunkOverlap: 10,
-      maxChunkSize: 10,
-    };
     await createVectorStore(vectorStoreData);
     expect(VectorStores.create).toHaveBeenCalledWith(vectorStoreData);
   });
