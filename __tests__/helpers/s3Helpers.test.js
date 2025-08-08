@@ -192,7 +192,7 @@ describe('S3 Helper Functions', () => {
       await new Promise(process.nextTick);
 
       expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.send).toHaveBeenCalledWith('Error streaming file');
+      expect(res.send).toHaveBeenCalledWith('Error streaming file: ', error);
     });
   });
 
