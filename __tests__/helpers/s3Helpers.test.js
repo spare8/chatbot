@@ -204,6 +204,13 @@ describe('S3 Helper Functions', () => {
           expect.objectContaining({input: {Bucket: S3_BUCKET_NAME, Prefix: 'fld/'}}),
       );
     });
+    test('handles empty response', async () => {
+      __sendMock.mockResolvedValue({});
+      await deleteFolder({folderName: 'fld'});
+      expect(__sendMock).toHaveBeenCalledWith(
+          expect.objectContaining({input: {Bucket: S3_BUCKET_NAME, Prefix: 'fld/'}}),
+      );
+    });
 
     test('renames all files in folder', async () => {
       const items = [{Key: 'fld/a.txt'}, {Key: 'fld/b.jpg'}];
@@ -212,6 +219,50 @@ describe('S3 Helper Functions', () => {
           .mockResolvedValue({}); // copy and delete calls
 
       await deleteFolder({folderName: 'fld'});
+
+      // list
+      expect(__sendMock).toHaveBeenNthCalledWith(
+          1,
+          expect.objectContaining({input: {Bucket: S3_BUCKET_NAME, Prefix: 'fld/'}}),
+      );
+      // copy
+      expect(__sendMock).toHaveBeenNthCalledWith(
+          2,
+          expect.objectContaining({
+            input: {
+              Bucket: S3_BUCKET_NAME,
+              CopySource: `${S3_BUCKET_NAME}/fld/a.txt`,
+              Key: 'fld-deleted/a.txt',
+            },
+          }),
+      );
+      expect(__sendMock).toHaveBeenNthCalledWith(
+          3,
+          expect.objectContaining({
+            input: {
+              Bucket: S3_BUCKET_NAME,
+              CopySource: `${S3_BUCKET_NAME}/fld/b.jpg`,
+              Key: 'fld-deleted/b.jpg',
+            },
+          }),
+      );
+      // delete originals
+      expect(__sendMock).toHaveBeenNthCalledWith(
+          4,
+          expect.objectContaining({input: {Bucket: S3_BUCKET_NAME, Key: 'fld/a.txt'}}),
+      );
+      expect(__sendMock).toHaveBeenNthCalledWith(
+          5,
+          expect.objectContaining({input: {Bucket: S3_BUCKET_NAME, Key: 'fld/b.jpg'}}),
+      );
+    });
+    test('renames all files in folder even if it ends with /', async () => {
+      const items = [{Key: 'fld/a.txt'}, {Key: 'fld/b.jpg'}];
+      __sendMock
+          .mockResolvedValueOnce({Contents: items}) // list
+          .mockResolvedValue({}); // copy and delete calls
+
+      await deleteFolder({folderName: 'fld/'});
 
       // list
       expect(__sendMock).toHaveBeenNthCalledWith(
