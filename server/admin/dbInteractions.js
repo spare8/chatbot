@@ -55,7 +55,7 @@ async function getAllAssistants() {
   return await Assistants.find({isDeleted: {$ne: true}});
 }
 async function getAllVectorStores() {
-  return await VectorStores.find({isDeleted: {$ne: true}});
+  return await VectorStores.find({isDeleted: {$ne: true}}).populate('vsFiles', 'fileName openaiId') ;
 }
 
 /**
