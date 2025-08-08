@@ -95,7 +95,7 @@ async function streamFileToResponse({folderName, fileName, res}) {
   const stream = resp.Body;
   stream.pipe(res);
   stream.on('error', (err) => {
-    res.status(500).send('Error streaming file: ', err);
+    res.status(500).send(`Error streaming file: ${err.message}`);
   });
 }
 
