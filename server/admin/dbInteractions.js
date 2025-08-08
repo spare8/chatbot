@@ -55,9 +55,13 @@ async function getAllAssistants() {
   return await Assistants.find({isDeleted: {$ne: true}});
 }
 async function getAllVectorStores() {
-  return await VectorStores.find({isDeleted: {$ne: true}})
-      .populate('vsFiles', 'fileName openaiId createdAt fileSize');
+  return await VectorStores.find({ isDeleted: { $ne: true } })
+    .populate({
+      path: 'vsFiles',
+      select: 'fileName openaiId fileSize updatedAt',
+    });
 }
+
 
 /**
  * Update an assistant by ID
@@ -65,9 +69,9 @@ async function getAllVectorStores() {
  * @param {Object} data - Fields to update
  * @returns {Promise<Object|null>} - Updated assistant or null
  */
-async function updateAssistant({assistantId, name, description, instructions, model, vectorStoreId}) {
+async function updateAssistant({assistantId, name, description, instructions, model, vectorStoreId, temperature}) {
   return await Assistants.findOneAndUpdate({openaiId: assistantId},
-      {name, description, instructions, model, vectorStoreId}, {new: true});
+      {name, description, instructions, model, vectorStoreId, temperature}, {new: true});
 }
 async function updateVectorStore({vectorStoreId, name, description}) {
   return await VectorStores.findOneAndUpdate({openaiId: vectorStoreId}, {name, description}, {new: true});

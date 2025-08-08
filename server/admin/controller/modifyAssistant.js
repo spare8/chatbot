@@ -16,6 +16,7 @@ async function updateAssistant(req, res) {
     tool_resources = {},
     vectorStoreIds = [],
     metadata = {},
+    temperature
   } = req.body;
 
   // 1) Validate required fields
@@ -65,6 +66,7 @@ async function updateAssistant(req, res) {
     toolResources: finalResources,
     vectorStores: vectorStoreIds,
     metadata,
+    temperature
   });
 
   // 5) Respond
