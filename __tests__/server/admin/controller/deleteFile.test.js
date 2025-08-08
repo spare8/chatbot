@@ -20,6 +20,7 @@ jest.mock('../../../../server/admin/dbInteractions', () => ({
 const fileId = 'testFileId';
 const vectorStoreId = 'testVectorStoreId';
 describe('deleteFile controller', () => {
+  let res; let req;
   beforeEach(() => {
     res = MockResponse();
     req = {
