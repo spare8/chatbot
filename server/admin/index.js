@@ -37,6 +37,7 @@ mongoose
     .then(() => console.log('✅ MongoDB connected'))
     .catch((err) => {
       console.error('❌ MongoDB connection error:', err);
+      /* eslint-disable no-process-exit */
       process.exit(1);
     });
 
