@@ -84,7 +84,8 @@ describe('vectorStoreValidate.js', () => {
     await validateVectorStores();
 
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Vector store \'vs_unknown\''));
-    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('File \'file_unknown\' exists in OpenAI vector store'));
+    expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining(
+        'File \'file_unknown\' exists in OpenAI vector store'));
     // expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('Vector store \'myVS\''));
     expect(warnSpy).toHaveBeenCalledWith(expect.stringContaining('File \'orphan\' (name: \'orphan.json\') exists'));
 
