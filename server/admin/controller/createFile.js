@@ -1,6 +1,6 @@
 const sanitize = require('sanitize-filename');
 const {createFile: createFileS3Helper} = require('../../../helpers/s3Helpers');
-const {uploadFileToOpenAI, addFileToVectorStore} = require('../../../helpers/openAI');
+const {uploadFileToOpenAI, addFileToVectorStore, waitForVectorStoreFileReady} = require('../../../helpers/openAI');
 const {createFile: createFileDBInteraction} = require('../dbInteractions');
 
 async function createFile({file, body: {vectorStoreId}}, res) {
@@ -14,6 +14,7 @@ async function createFile({file, body: {vectorStoreId}}, res) {
   const fileName = sanitize(raw) || `${Date.now()}`;
   const openaiId = await uploadFileToOpenAI({buffer: file.buffer, fileName});
   await addFileToVectorStore({fileId: openaiId, vectorStoreId});
+  // await waitForVectorStoreFileReady({fileId: openaiId, vectorStoreId});
   await Promise.all([
     createFileDBInteraction({fileName, openaiId, vectorStoreId}),
     createFileS3Helper({

@@ -85,13 +85,16 @@ export default function VectorStorePage() {
 
   /* ───────── global search filter */
   const filtered = useMemo(() => {
-    if (!search.trim()) return stores;
-    const q = search.toLowerCase();
-    return stores.filter((vs) => {
-      if (vs.name.toLowerCase().includes(q)) return true;
-      return (vs.files || []).some((f) => f.fileName.toLowerCase().includes(q));
-    });
-  }, [search, stores]);
+  if (!search.trim()) return stores;
+  const q = search.toLowerCase();
+
+  return stores.filter((vs) => {
+    if (vs.name?.toLowerCase().includes(q)) return true;
+    return (vs.files || []).some(
+      (f) => (f.fileName || f.name || '').toLowerCase().includes(q)   // ← safe-guard
+    );
+  });
+}, [search, stores]);
 
   /* ───────── CRUD handlers */
   const handleCreateVS = async () => {
@@ -279,7 +282,7 @@ export default function VectorStorePage() {
                       <IconButton
                         edge="end"
                         color="error"
-                        onClick={() => handleDeleteFile(activeVS, file)}
+                        onClick={() => handleDeleteFile(activeVS, file.openaiId)}
                       >
                         <DeleteIcon fontSize="small" />
                       </IconButton>

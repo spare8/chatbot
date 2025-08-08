@@ -939,26 +939,46 @@ async function linkVectorStore(assistantId, vectorStoreId) {
   }
 }
 
-async function waitForVectorStoreFileReady({ fileId, vectorStoreId },
-                                           maxRetries = 20,
-                                           delayMs = 2000) {
-  const url = `https://api.openai.com/v1/vector_stores/${vectorStoreId}/files/${fileId}`;
+/**
+ * Poll OpenAI until a vector-store file finishes ingesting.
+ *
+ * @param {Object}   opts
+ * @param {string}   opts.fileId        – id returned by addFileToVectorStore
+ * @param {number?}  opts.maxRetries    – max poll attempts   (default 25)
+ * @param {number?}  opts.delayMs       – delay between polls (default 5 000 ms)
+ * @returns {Object} OpenAI vector_store.file object (status === "completed")
+ */
+async function waitForVectorStoreFileReady(
+  { fileId, maxRetries = 25, delayMs = 5000 }
+) {
+  if (!fileId) throw new Error('fileId required');
+  const url = `https://api.openai.com/v1/vector_store_files/${fileId}`;
+  console.log(`Polling for vector-store file readiness: ${url}`);
 
   for (let i = 0; i < maxRetries; i++) {
-    const res = await axios.get(url, { headers: openAPIHeaders });
-    const status = res?.data?.status;
+    try {
+      const { data } = await axios.get(url, { headers: openAPIHeaders });
+      console.log('[poll]', data.status, data.last_error ?? '');
 
-    if (status === 'completed') {
-      console.log('✅ file ingested into vector store');
-      return true;
+      if (data.status === 'completed') return data;        // ✅ ready
+      if (data.status === 'failed')    throw new Error(
+        `Vector-store ingestion failed: ${data.last_error?.code || ''}`
+      );
+
+      /* still "in_progress" – fall through to wait & retry */
+    } catch (err) {
+      const code = err.response?.status;
+      if (code !== 404 && code !== 400) throw err;         // real error
+      /* 404/400 = resource not ready yet – keep polling */
     }
-    if (status === 'failed') {
-      throw new Error('Vector-store ingestion failed');
-    }
-    await new Promise(r => setTimeout(r, delayMs));
+
+    await new Promise(res => setTimeout(res, delayMs));
   }
   throw new Error('Timed-out waiting for vector-store ingestion');
 }
+
+
+
 
 
 
