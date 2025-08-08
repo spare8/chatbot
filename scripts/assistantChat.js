@@ -69,7 +69,7 @@ async function setupAssistant() {
     };
     config[slug] = assistant;
   } else {
-    const index = parseInt(choice) - 1;
+    const index = parseInt(choice, 10) - 1;
     slug = slugs[index];
     assistant = config[slug];
 
@@ -116,7 +116,7 @@ async function setupAssistant() {
       console.log(`  [${i + 1}] ${tid}`);
     });
     const tidChoice = await promptInput('Pick thread number: ');
-    threadId = assistant.thread_ids[parseInt(tidChoice) - 1];
+    threadId = assistant.thread_ids[parseInt(tidChoice, 10) - 1];
   } else {
     const thread = await createThread();
     threadId = thread.id;
