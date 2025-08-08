@@ -8,19 +8,23 @@ const VSFiles = require('../../models/VSFile');
  * @param {Object} data - Assistant properties
  * @returns {Promise<Object>} - Created assistant document
  */
-async function createAssistant({name, description, instructions, model, vectorStoreId, openaiId}) {
+function createAssistant({name, description, instructions, model, vectorStoreId, openaiId}) {
   if (!name || !model || !openaiId) {
-    throw new Error('Name, model and openaiId are required to create an assistant');
+    return Promise.reject(
+        new Error('Name, model and openaiId are required to create an assistant'),
+    );
   }
-  return await Assistants.create({
+  return Assistants.create({
     name, description, instructions, model, vectorStoreId, openaiId,
   });
 }
-async function createVectorStore({name, openaiId, description, maxChunkOverlap, maxChunkSize}) {
+function createVectorStore({name, openaiId, description, maxChunkOverlap, maxChunkSize}) {
   if (!name || !description || !openaiId || !maxChunkOverlap || !maxChunkSize) {
-    throw new Error('Insufficient Params to create a vector store');
+    return Promise.reject(
+        new Error('Insufficient Params to create a vector store'),
+    );
   }
-  return await VectorStores.create({name, openaiId, description, maxChunkOverlap, maxChunkSize});
+  return VectorStores.create({name, openaiId, description, maxChunkOverlap, maxChunkSize});
 }
 async function createFile({fileName, openaiId, vectorStoreId, fileSize}) {
   if (!fileName || !vectorStoreId || !openaiId || !fileSize) {
