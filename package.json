@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "description": "AI chat for customer service and sales agent",
   "main": "index.js",
+  "engines": {
+    "node": ">=14.0.0"
+  },
   "scripts": {
     "test": "jest --verbose --coverage --config=config/jest.config.js",
     "test-staged": "node scripts/testStaged.js",

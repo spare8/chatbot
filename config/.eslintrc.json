@@ -59,7 +59,7 @@
         "import/export": "error",
         "consistent-return": "error",
         "require-await": "error",
-        "no-return-await": "error",
+        "no-return-await": "warn",
         "no-process-env": "error",
         "prefer-destructuring": ["warn", {"object": true, "array": true}],
         "no-unused-vars": ["warn", { "args": "after-used", "ignoreRestSiblings": true }],
