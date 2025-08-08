@@ -42,7 +42,7 @@ describe('deleteFile controller', () => {
     expect(res.json).toHaveBeenCalledWith({error: 'Insufficient Params to delete a file'});
   });
   it('should delete a file successfully', async () => {
-    await deleteFile(req.body, res);
+    await deleteFile(req, res);
 
     expect(deleteFileDBInteraction).toHaveBeenCalledWith({vectorStoreId, fileId});
     expect(deleteFileById).toHaveBeenCalledWith({fileId});

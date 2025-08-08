@@ -60,8 +60,12 @@ function getAllAssistants() {
 }
 function getAllVectorStores() {
   return VectorStores.find({isDeleted: {$ne: true}})
-      .populate('vsFiles', 'fileName openaiId createdAt fileSize');
+      .populate({
+        path: 'vsFiles',
+        select: 'fileName openaiId fileSize updatedAt',
+      });
 }
+
 
 /**
  * Update an assistant by ID
@@ -69,9 +73,9 @@ function getAllVectorStores() {
  * @param {Object} data - Fields to update
  * @returns {Promise<Object|null>} - Updated assistant or null
  */
-function updateAssistant({assistantId, name, description, instructions, model, vectorStoreId}) {
+function updateAssistant({assistantId, name, description, instructions, model, vectorStoreId, temperature}) {
   return Assistants.findOneAndUpdate({openaiId: assistantId},
-      {name, description, instructions, model, vectorStoreId}, {new: true});
+      {name, description, instructions, model, vectorStoreId, temperature}, {new: true});
 }
 function updateVectorStore({vectorStoreId, name, description}) {
   return VectorStores.findOneAndUpdate({openaiId: vectorStoreId}, {name, description}, {new: true});

@@ -45,7 +45,7 @@ describe('createAssistant', () => {
   it('should create assistant', async () => {
     await createAssistant(req, res);
     expect(createAssistantOpenaiHelper).toHaveBeenCalledWith({
-      name, description, instructions, model, tool_resources: {}, tools: []});
+      name, description, instructions, model, toolResources: {}, tools: []});
     expect(createAssistantDBInteraction).toHaveBeenCalledWith({
       name, description, instructions, model, openaiId, toolResources: {}, tools: [],
     });

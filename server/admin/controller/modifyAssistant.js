@@ -13,9 +13,10 @@ async function updateAssistant(req, res) {
     description = '',
     model,
     tools = [],
-    tool_resources = {},
+    toolResources = {},
     vectorStoreIds = [],
     metadata = {},
+    temperature,
   } = req.body;
 
   // 1) Validate required fields
@@ -30,7 +31,7 @@ async function updateAssistant(req, res) {
 
   // 2) Build final tools array and resources
   const finalTools = Array.isArray(tools) ? [...tools] : [];
-  const finalResources = {...tool_resources};
+  const finalResources = {...toolResources};
 
   if (vectorStoreIds.length > 0) {
     if (!finalTools.some((t) => t.type === 'file_search')) {
@@ -47,7 +48,7 @@ async function updateAssistant(req, res) {
     description,
     model,
     tools: finalTools,
-    tool_resources: finalResources,
+    toolResources: finalResources,
     metadata,
   });
   if (!openaiResult) {
@@ -65,6 +66,7 @@ async function updateAssistant(req, res) {
     toolResources: finalResources,
     vectorStores: vectorStoreIds,
     metadata,
+    temperature,
   });
 
   // 5) Respond
