@@ -33,13 +33,23 @@ function MockResponse() {
   };
 }
 
+/**
+ * Given a Mongoose model, stubs out its methods so you can write tests
+ * without hitting the real database. Query methods return a chainable
+ * object with .populate() and .exec().
+ */
 function applyCacheAndMock(model) {
-  const methods = [
+  // Which methods should return a chainable query
+  const queryMethods = [
     'find',
     'findOne',
     'findById',
     'findOneAndUpdate',
     'findByIdAndUpdate',
+  ];
+
+  // Which methods just return a promise of “something”
+  const simplePromiseMethods = [
     'create',
     'updateOne',
     'updateMany',
@@ -50,10 +60,23 @@ function applyCacheAndMock(model) {
     'distinct',
   ];
 
-  methods.forEach((m) => {
-    // stub each to a jest.fn that resolves to undefined by default
+  // Build one shared chainable stub
+  function makeChainable(defaultResult = []) {
+    const chain = {};
+    chain.populate = jest.fn(() => chain);
+    chain.exec = jest.fn().mockResolvedValue(defaultResult);
+    return chain;
+  }
+
+  // Stub out the query methods
+  for (const m of queryMethods) {
+    model[m] = jest.fn(() => makeChainable());
+  }
+
+  // Stub out simple promise methods
+  for (const m of simplePromiseMethods) {
     model[m] = jest.fn().mockResolvedValue(undefined);
-  });
+  }
 }
 
 module.exports = {
