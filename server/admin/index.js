@@ -12,14 +12,14 @@ require('dotenv').config({
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const {ADMIN_SERVER_PORT, MONGODB_URI, CLIENT_URL} = require('../../config/config.js');
+const {ADMIN_SERVER_PORT, MONGODB_URI, NEXT_JS_PUBLIC_URL} = require('../../config/config.js');
 const {applyErrorReporterMiddleware} = require('../../helpers/globalMiddlewares.js');
 const routes = require('./routes');
 
 const app = express();
 
 app.use(cors({
-  origin: CLIENT_URL,
+  origin: NEXT_JS_PUBLIC_URL,
   credentials: true,
 }));
 

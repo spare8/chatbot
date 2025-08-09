@@ -7,11 +7,11 @@ const {
 } = require('../helpers/openAI'); // make sure this points to your helper file
 
 const axios = require('axios');
-const {OPEN_AI_API_TOKEN} = require('../config/config');
+const {OPENAI_API_KEY} = require('../config/config');
 
 const openAPIHeaders = {
   'Content-Type': 'application/json',
-  'Authorization': `Bearer ${OPEN_AI_API_TOKEN}`,
+  'Authorization': `Bearer ${OPENAI_API_KEY}`,
   'OpenAI-Beta': 'assistants=v2',
 };
 

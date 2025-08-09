@@ -10,7 +10,7 @@ npm i
 3. Add 
 ```bash
 touch .env
-echo OPEN_AI_API_TOKEN="<YOUR_OPEN_AI_API_TOKEN>" > .env
+echo OPENAI_API_KEY="<YOUR_OPENAI_API_KEY>" > .env
 ```
 4. Create a folder called knowledgeBank
 5. Create a folder with the name of the vector store you want to create

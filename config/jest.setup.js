@@ -1,5 +1,5 @@
 
 /* eslint-disable no-process-env */
-process.env.OPEN_AI_API_TOKEN = `TEST`;
+process.env.OPENAI_API_KEY = `TEST`;
 
 require('dotenv').config();
