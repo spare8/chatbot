@@ -1,16 +1,16 @@
-const {MockResponse} = require('../../../setupTests');
-const {createVectorStore} = require('../../../../server/admin/controller/createVectorStore');
-const {createVectorStore: createVectorStoreDBInteraction} = require('../../../../server/admin/dbInteractions');
-const {createVectorStore: createVectorStoreOpenaiHelper} = require('../../../../helpers/openAI');
-const {createFolder} = require('../../../../helpers/s3Helpers');
+const {MockResponse} = require('../../../../setupTests');
+const {createVectorStore} = require('../../../../../server/admin/controller/vectorStores/createVectorStore');
+const {createVectorStore: createVectorStoreDBInteraction} = require('../../../../../server/admin/dbInteractions');
+const {createVectorStore: createVectorStoreOpenaiHelper} = require('../../../../../helpers/openAI');
+const {createFolder} = require('../../../../../helpers/s3Helpers');
 
-jest.mock('../../../../server/admin/dbInteractions', () => ({
+jest.mock('../../../../../server/admin/dbInteractions', () => ({
   createVectorStore: jest.fn(),
 }));
-jest.mock('../../../../helpers/openAI', () => ({
+jest.mock('../../../../../helpers/openAI', () => ({
   createVectorStore: jest.fn(),
 }));
-jest.mock('../../../../helpers/s3Helpers', () => ({
+jest.mock('../../../../../helpers/s3Helpers', () => ({
   createFolder: jest.fn(),
 }));
 

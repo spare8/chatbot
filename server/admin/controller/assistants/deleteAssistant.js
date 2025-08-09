@@ -1,6 +1,6 @@
 // server/controllers/deleteAssistant.js
-const {deleteAssistant: deleteAssistantDBInteraction} = require('../dbInteractions');
-const {deleteAssistant: deleteAssistantOpenaiHelper} = require('../../../helpers/openAI');
+const {deleteAssistant: deleteAssistantDBInteraction} = require('../../dbInteractions');
+const {deleteAssistant: deleteAssistantOpenaiHelper} = require('../../../../helpers/openAI');
 
 
 async function deleteAssistant({body: {assistantId}}, res) {

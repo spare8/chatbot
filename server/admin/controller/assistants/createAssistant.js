@@ -1,6 +1,6 @@
 // server/controllers/createAssistant.js
-const {createAssistant: createAssistantDBInteraction} = require('../dbInteractions');
-const {createAssistant2: createAssistantOpenaiHelper} = require('../../../helpers/openAI');
+const {createAssistant: createAssistantDBInteraction} = require('../../dbInteractions');
+const {createAssistant2: createAssistantOpenaiHelper} = require('../../../../helpers/openAI');
 
 async function createAssistant(req, res) {
   // Destructure incoming request body

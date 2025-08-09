@@ -1,12 +1,12 @@
-const {MockResponse} = require('../../../setupTests');
-const {createAssistant} = require('../../../../server/admin/controller/createAssistant');
-const {createAssistant: createAssistantDBInteraction} = require('../../../../server/admin/dbInteractions');
-const {createAssistant2: createAssistantOpenaiHelper} = require('../../../../helpers/openAI');
+const {MockResponse} = require('../../../../setupTests');
+const {createAssistant} = require('../../../../../server/admin/controller/assistants/createAssistant');
+const {createAssistant: createAssistantDBInteraction} = require('../../../../../server/admin/dbInteractions');
+const {createAssistant2: createAssistantOpenaiHelper} = require('../../../../../helpers/openAI');
 
-jest.mock('../../../../server/admin/dbInteractions', () => ({
+jest.mock('../../../../../server/admin/dbInteractions', () => ({
   createAssistant: jest.fn(),
 }));
-jest.mock('../../../../helpers/openAI', () => ({
+jest.mock('../../../../../helpers/openAI', () => ({
   createAssistant2: jest.fn(),
 }));
 

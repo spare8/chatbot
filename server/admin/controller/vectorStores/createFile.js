@@ -1,7 +1,7 @@
 const sanitize = require('sanitize-filename');
-const {createFile: createFileS3Helper} = require('../../../helpers/s3Helpers');
-const {uploadFileToOpenAI, addFileToVectorStore} = require('../../../helpers/openAI');
-const {createFile: createFileDBInteraction} = require('../dbInteractions');
+const {createFile: createFileS3Helper} = require('../../../../helpers/s3Helpers');
+const {uploadFileToOpenAI, addFileToVectorStore} = require('../../../../helpers/openAI');
+const {createFile: createFileDBInteraction} = require('../../dbInteractions');
 
 async function createFile({file, body: {vectorStoreId}}, res) {
   if (!file || !file.buffer || !file.originalname || !file.size || !vectorStoreId) {

@@ -1,6 +1,6 @@
-const {createVectorStore: createVectorStoreDbInteraction} = require('../dbInteractions');
-const {createVectorStore: createVectorStoreOpenAI} = require('../../../helpers/openAI');
-const {createFolder} = require('../../../helpers/s3Helpers');
+const {createVectorStore: createVectorStoreDbInteraction} = require('../../dbInteractions');
+const {createVectorStore: createVectorStoreOpenAI} = require('../../../../helpers/openAI');
+const {createFolder} = require('../../../../helpers/s3Helpers');
 
 async function createVectorStore({body: {name, description,
   maxChunkSize = 300, maxChunkOverlap = 40}}, res) {

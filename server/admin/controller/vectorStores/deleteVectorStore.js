@@ -1,7 +1,7 @@
 // server/controllers/deleteAssistant.js
-const {deleteVectorStore: deleteVSDBInteraction} = require('../dbInteractions');
-const {deleteVectorStore: deleteVectorStoreOpenaiHelper} = require('../../../helpers/openAI');
-const {deleteFolder} = require('../../../helpers/s3Helpers');
+const {deleteVectorStore: deleteVSDBInteraction} = require('../../dbInteractions');
+const {deleteVectorStore: deleteVectorStoreOpenaiHelper} = require('../../../../helpers/openAI');
+const {deleteFolder} = require('../../../../helpers/s3Helpers');
 
 
 async function deleteVectorStore({body: {vectorStoreId}}, res) {

@@ -1,8 +1,8 @@
-const {listVectorStores} = require('../../../../server/admin/controller/listVectorStores');
-const {getAllVectorStores} = require('../../../../server/admin/dbInteractions');
-const {MockResponse} = require('../../../setupTests');
+const {listVectorStores} = require('../../../../../server/admin/controller/vectorStores/listVectorStores');
+const {getAllVectorStores} = require('../../../../../server/admin/dbInteractions');
+const {MockResponse} = require('../../../../setupTests');
 
-jest.mock('../../../../server/admin/dbInteractions', () => ({
+jest.mock('../../../../../server/admin/dbInteractions', () => ({
   getAllVectorStores: jest.fn(),
 }));
 

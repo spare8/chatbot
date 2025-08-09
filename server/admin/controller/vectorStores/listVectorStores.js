@@ -1,4 +1,4 @@
-const {getAllVectorStores} = require('../dbInteractions');
+const {getAllVectorStores} = require('../../dbInteractions');
 
 async function listVectorStores(req, res) {
   const vectorStores = await getAllVectorStores();

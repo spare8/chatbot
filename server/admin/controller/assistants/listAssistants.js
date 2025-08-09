@@ -1,4 +1,4 @@
-const {getAllAssistants} = require('../dbInteractions');
+const {getAllAssistants} = require('../../dbInteractions');
 
 async function listAssistants(req, res) {
   const assistants = await getAllAssistants();

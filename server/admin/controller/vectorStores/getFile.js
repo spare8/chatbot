@@ -1,4 +1,4 @@
-const {streamFileToResponse} = require('../../../helpers/s3Helpers');
+const {streamFileToResponse} = require('../../../../helpers/s3Helpers');
 
 // Get file from s3, and stream the output to response
 function getFile({body: {vectorStoreId, fileId}}, res) {

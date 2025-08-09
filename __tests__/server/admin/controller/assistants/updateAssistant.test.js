@@ -1,14 +1,14 @@
 // tests/server/admin/controller/updateAssistant.test.js
 
-const {MockResponse} = require('../../../setupTests');
-const {updateAssistant} = require('../../../../server/admin/controller/modifyAssistant');
-const {updateAssistant: updateAssistantDBInteraction} = require('../../../../server/admin/dbInteractions');
-const {modifyAssistant2: modifyAssistantOpenaiHelper} = require('../../../../helpers/openAI');
+const {MockResponse} = require('../../../../setupTests');
+const {updateAssistant} = require('../../../../../server/admin/controller/assistants/updateAssistant');
+const {updateAssistant: updateAssistantDBInteraction} = require('../../../../../server/admin/dbInteractions');
+const {modifyAssistant2: modifyAssistantOpenaiHelper} = require('../../../../../helpers/openAI');
 
-jest.mock('../../../../server/admin/dbInteractions', () => ({
+jest.mock('../../../../../server/admin/dbInteractions', () => ({
   updateAssistant: jest.fn(),
 }));
-jest.mock('../../../../helpers/openAI', () => ({
+jest.mock('../../../../../helpers/openAI', () => ({
   modifyAssistant2: jest.fn(),
 }));
 
