@@ -5,11 +5,6 @@ const NextConfig = {
   // Bundle the DataGrid so its CSS is handled
   transpilePackages: ['@mui/x-data-grid'],
 
-  // Disable ESM externals so CSS imports aren’t skipped
-  experimental: {
-    esmExternals: false,
-  },
-
   webpack(config, {dev}) {
     if (dev) {
       // Use ONLY an in-memory cache in dev (no PackFileCache filesystem)
@@ -18,6 +13,15 @@ const NextConfig = {
       };
     }
     return config;
+  },
+  redirects() {
+    return [
+      {
+        source: '/',
+        destination: '/how-to-use',
+        permanent: true, // use false (307) during development if you prefer
+      },
+    ];
   },
 };
 

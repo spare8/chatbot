@@ -38,9 +38,10 @@
         },
         "extends": [
           "plugin:react/recommended",
-          "plugin:@next/next/recommended"
+          "plugin:@next/next/recommended",
+          "plugin:react-hooks/recommended"
         ],
-        "plugins": ["react"],
+        "plugins": ["react", "react-hooks"],
         "settings": {
           "react": { "version": "detect" }
         },
