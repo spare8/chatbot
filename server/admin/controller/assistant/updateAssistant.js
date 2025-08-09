@@ -1,5 +1,5 @@
-const {updateAssistant: updateAssistantDBInteraction} = require('../dbInteractions');
-const {modifyAssistant2: modifyAssistantOpenaiHelper} = require('../../../helpers/openAI');
+const {updateAssistant: updateAssistantDBInteraction} = require('../../dbInteractions');
+const {modifyAssistant2: modifyAssistantOpenaiHelper} = require('../../../../helpers/openAI');
 
 /**
  * Update an existing assistant on OpenAI and MongoDB

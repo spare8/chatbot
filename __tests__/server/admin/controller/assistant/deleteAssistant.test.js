@@ -1,12 +1,12 @@
-const {deleteAssistant} = require('../../../../server/admin/controller/deleteAssistant');
-const {deleteAssistant: deleteAssistantDBInteraction} = require('../../../../server/admin/dbInteractions');
-const {deleteAssistant: deleteAssistantOpenaiHelper} = require('../../../../helpers/openAI');
-const {MockResponse} = require('../../../setupTests');
+const {deleteAssistant} = require('../../../../../server/admin/controller/assistant/deleteAssistant');
+const {deleteAssistant: deleteAssistantDBInteraction} = require('../../../../../server/admin/dbInteractions');
+const {deleteAssistant: deleteAssistantOpenaiHelper} = require('../../../../../helpers/openAI');
+const {MockResponse} = require('../../../../setupTests');
 
-jest.mock('../../../../server/admin/dbInteractions', () => ({
+jest.mock('../../../../../server/admin/dbInteractions', () => ({
   deleteAssistant: jest.fn(),
 }));
-jest.mock('../../../../helpers/openAI', () => ({
+jest.mock('../../../../../helpers/openAI', () => ({
   deleteAssistant: jest.fn(),
 }));
 

@@ -1,8 +1,8 @@
-const {listAssistants} = require('../../../../server/admin/controller/listAssistants');
-const {getAllAssistants} = require('../../../../server/admin/dbInteractions');
-const {MockResponse} = require('../../../setupTests');
+const {listAssistants} = require('../../../../../server/admin/controller/assistant/listAssistants');
+const {getAllAssistants} = require('../../../../../server/admin/dbInteractions');
+const {MockResponse} = require('../../../../setupTests');
 
-jest.mock('../../../../server/admin/dbInteractions', () => ({
+jest.mock('../../../../../server/admin/dbInteractions', () => ({
   getAllAssistants: jest.fn(),
 }));
 
