@@ -2,15 +2,8 @@
 import React, {useEffect, useState, useMemo} from 'react';
 import {useRouter} from 'next/router';
 import axios from 'axios';
-import {darkTheme} from '../../../lib/theme';
+import PageToolbar from '../../../components/PageToolbar';
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  IconButton,
-  Tooltip,
-  CssBaseline,
-  ThemeProvider,
   Box,
   Card,
   CardContent,
@@ -26,27 +19,28 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  InputAdornment,
   Grid,
+  Typography,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import {
-  Search as SearchIcon,
   Add as AddIcon,
   Delete as DeleteIcon,
   Folder as FolderIcon,
   Description as FileIcon,
   UploadFile as UploadIcon,
-  ArrowBack as ArrowBackIcon,
 } from '@mui/icons-material';
 
 const API_BASE = 'http://localhost:3000/vectorStore';
+export const title = 'Manage Vector Stores';
 
 const bytesToSize = (bytes = 0) => {
   const sizes = ['B', 'KB', 'MB', 'GB'];
   if (!bytes) {
     return '0 B';
   }
-  const i = Math.floor(Math.log(bytes) / Math.log(1024));
+  const i = Math.min(sizes.length - 1, Math.floor(Math.log(bytes) / Math.log(1024)));
   return `${(bytes / 1024 ** i).toFixed(1)} ${sizes[i]}`;
 };
 
@@ -85,14 +79,10 @@ export default function VectorStorePage() {
       return stores;
     }
     const q = search.toLowerCase();
-    return stores.filter((vs) => {
-      if (vs.name?.toLowerCase().includes(q)) {
-        return true;
-      }
-      return (vs.files || []).some((f) =>
-        (f.fileName || '').toLowerCase().includes(q),
-      );
-    });
+    return stores.filter((vs) =>
+      vs.name?.toLowerCase().includes(q) ||
+      (vs.files || []).some((f) => (f.fileName || '').toLowerCase().includes(q)),
+    );
   }, [search, stores]);
 
   const handleCreateVS = async () => {
@@ -109,9 +99,7 @@ export default function VectorStorePage() {
     }
   };
 
-  const handleDeleteVS = (vs) => {
-    setDeleteInfo({type: 'vs', data: vs});
-  };
+  const handleDeleteVS = (vs) => setDeleteInfo({type: 'vs', data: vs});
   const confirmDeleteVS = async () => {
     setLoading(true);
     try {
@@ -125,9 +113,7 @@ export default function VectorStorePage() {
     }
   };
 
-  const handleDeleteFile = (vs, file) => {
-    setDeleteInfo({type: 'file', data: {vs, file}});
-  };
+  const handleDeleteFile = (vs, file) => setDeleteInfo({type: 'file', data: {vs, file}});
   const confirmDeleteFile = async () => {
     setLoading(true);
     try {
@@ -169,43 +155,17 @@ export default function VectorStorePage() {
   };
 
   return (
-    <ThemeProvider theme={darkTheme}>
-      <CssBaseline />
-
-      {/* App Bar with Back Button */}
-      <AppBar position="static">
-        <Toolbar>
-          <IconButton color="inherit" onClick={() => router.back()} disabled={loading}>
-            <ArrowBackIcon />
-          </IconButton>
-          <TextField
-            size="small"
-            placeholder="Search…"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            disabled={loading}
-            sx={{width: 300, mr: 2}}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <Typography variant="h6" sx={{flexGrow: 1}}>
-            Vector Stores
-          </Typography>
-          <Tooltip title="Add Vector Store">
-            <IconButton color="inherit" onClick={() => setCreateDlg(true)} disabled={loading}>
-              <AddIcon />
-            </IconButton>
-          </Tooltip>
-        </Toolbar>
-      </AppBar>
+    <Box>
+      <PageToolbar
+        title="Vector Stores"
+        onBack={() => router.back()}
+        onCreate={() => setCreateDlg(true)}
+        search={search}
+        onSearchChange={setSearch}
+      />
 
       {/* Grid of Vector Stores */}
-      <Box sx={{p: 3}}>
+      <Box sx={{p: 2}}>
         <Grid container spacing={2}>
           {filtered.map((vs) => (
             <Grid item xs={12} md={6} lg={4} key={vs.openaiId}>
@@ -343,12 +303,7 @@ export default function VectorStorePage() {
       </Drawer>
 
       {/* Create Vector Store Dialog */}
-      <Dialog
-        open={createDlg}
-        onClose={() => !loading && setCreateDlg(false)}
-        fullWidth
-        maxWidth="sm"
-      >
+      <Dialog open={createDlg} onClose={() => !loading && setCreateDlg(false)} fullWidth maxWidth="sm">
         <DialogTitle>Create Vector Store</DialogTitle>
         <DialogContent sx={{display: 'flex', flexDirection: 'column', gap: 2, pt: 2}}>
           <TextField
@@ -370,9 +325,7 @@ export default function VectorStorePage() {
             label="Max Chunk Size"
             type="number"
             value={newVS.maxChunkSize}
-            onChange={(e) =>
-              setNewVS((p) => ({...p, maxChunkSize: Number(e.target.value)}))
-            }
+            onChange={(e) => setNewVS((p) => ({...p, maxChunkSize: Number(e.target.value)}))}
             fullWidth
             disabled={loading}
           />
@@ -380,20 +333,14 @@ export default function VectorStorePage() {
             label="Chunk Overlap"
             type="number"
             value={newVS.maxChunkOverlap}
-            onChange={(e) =>
-              setNewVS((p) => ({...p, maxChunkOverlap: Number(e.target.value)}))
-            }
+            onChange={(e) => setNewVS((p) => ({...p, maxChunkOverlap: Number(e.target.value)}))}
             fullWidth
             disabled={loading}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setCreateDlg(false)} disabled={loading}>
-            Cancel
-          </Button>
-          <Button onClick={handleCreateVS} variant="contained" disabled={loading}>
-            Create
-          </Button>
+          <Button onClick={() => setCreateDlg(false)} disabled={loading}>Cancel</Button>
+          <Button onClick={handleCreateVS} variant="contained" disabled={loading}>Create</Button>
         </DialogActions>
       </Dialog>
 
@@ -413,15 +360,12 @@ export default function VectorStorePage() {
               </>
             ) : (
               <Typography>
-                Delete file <b>{deleteInfo.data.file.fileName}</b> from{' '}
-                <b>{deleteInfo.data.vs.name}</b>?
+                Delete file <b>{deleteInfo.data.file.fileName}</b> from <b>{deleteInfo.data.vs.name}</b>?
               </Typography>
             )}
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setDeleteInfo(null)} disabled={loading}>
-              Cancel
-            </Button>
+            <Button onClick={() => setDeleteInfo(null)} disabled={loading}>Cancel</Button>
             <Button
               color="error"
               variant="contained"
@@ -433,6 +377,6 @@ export default function VectorStorePage() {
           </DialogActions>
         </Dialog>
       )}
-    </ThemeProvider>
+    </Box>
   );
 }
