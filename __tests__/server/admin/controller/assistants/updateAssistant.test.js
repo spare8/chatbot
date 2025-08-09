@@ -1,7 +1,7 @@
 // tests/server/admin/controller/updateAssistant.test.js
 
 const {MockResponse} = require('../../../../setupTests');
-const {updateAssistant} = require('../../../../../server/admin/controller/assistant/updateAssistant');
+const {updateAssistant} = require('../../../../../server/admin/controller/assistants/updateAssistant');
 const {updateAssistant: updateAssistantDBInteraction} = require('../../../../../server/admin/dbInteractions');
 const {modifyAssistant2: modifyAssistantOpenaiHelper} = require('../../../../../helpers/openAI');
 

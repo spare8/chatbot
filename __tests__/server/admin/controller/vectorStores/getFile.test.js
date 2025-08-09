@@ -1,8 +1,8 @@
-const {getFile} = require('../../../../server/admin/controller/getFile');
-const {streamFileToResponse} = require('../../../../helpers/s3Helpers');
-const {MockResponse} = require('../../../setupTests');
+const {getFile} = require('../../../../../server/admin/controller/vectorStores/getFile');
+const {streamFileToResponse} = require('../../../../../helpers/s3Helpers');
+const {MockResponse} = require('../../../../setupTests');
 
-jest.mock('../../../../helpers/s3Helpers', () => ({
+jest.mock('../../../../../helpers/s3Helpers', () => ({
   streamFileToResponse: jest.fn(),
 }));
 

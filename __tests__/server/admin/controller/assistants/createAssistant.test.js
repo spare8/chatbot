@@ -1,5 +1,5 @@
 const {MockResponse} = require('../../../../setupTests');
-const {createAssistant} = require('../../../../../server/admin/controller/assistant/createAssistant');
+const {createAssistant} = require('../../../../../server/admin/controller/assistants/createAssistant');
 const {createAssistant: createAssistantDBInteraction} = require('../../../../../server/admin/dbInteractions');
 const {createAssistant2: createAssistantOpenaiHelper} = require('../../../../../helpers/openAI');
 

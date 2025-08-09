@@ -1,4 +1,4 @@
-const {listAssistants} = require('../../../../../server/admin/controller/assistant/listAssistants');
+const {listAssistants} = require('../../../../../server/admin/controller/assistants/listAssistants');
 const {getAllAssistants} = require('../../../../../server/admin/dbInteractions');
 const {MockResponse} = require('../../../../setupTests');
 

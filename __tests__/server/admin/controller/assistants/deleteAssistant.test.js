@@ -1,4 +1,4 @@
-const {deleteAssistant} = require('../../../../../server/admin/controller/assistant/deleteAssistant');
+const {deleteAssistant} = require('../../../../../server/admin/controller/assistants/deleteAssistant');
 const {deleteAssistant: deleteAssistantDBInteraction} = require('../../../../../server/admin/dbInteractions');
 const {deleteAssistant: deleteAssistantOpenaiHelper} = require('../../../../../helpers/openAI');
 const {MockResponse} = require('../../../../setupTests');

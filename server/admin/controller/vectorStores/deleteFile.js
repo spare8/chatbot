@@ -1,6 +1,6 @@
-const {deleteFile: deleteFileDBInteraction} = require('../dbInteractions');
-const {deleteFileById, deleteFileFromVectorStore} = require('../../../helpers/openAI');
-const {deleteFile: deleteFileS3Helper} = require('../../../helpers/s3Helpers');
+const {deleteFile: deleteFileDBInteraction} = require('../../dbInteractions');
+const {deleteFileById, deleteFileFromVectorStore} = require('../../../../helpers/openAI');
+const {deleteFile: deleteFileS3Helper} = require('../../../../helpers/s3Helpers');
 
 async function deleteFile({body: {fileId, vectorStoreId}}, res) {
   if (!fileId || !vectorStoreId) {

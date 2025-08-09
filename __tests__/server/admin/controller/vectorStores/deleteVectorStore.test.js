@@ -1,16 +1,16 @@
-const {deleteVectorStore} = require('../../../../server/admin/controller/deleteVectorStore');
-const {deleteVectorStore: deleteVectorStoreDBInteraction} = require('../../../../server/admin/dbInteractions');
-const {deleteVectorStore: deleteVectorStoreOpenaiHelper} = require('../../../../helpers/openAI');
-const {deleteFolder} = require('../../../../helpers/s3Helpers');
-const {MockResponse} = require('../../../setupTests');
+const {deleteVectorStore} = require('../../../../../server/admin/controller/vectorStores/deleteVectorStore');
+const {deleteVectorStore: deleteVectorStoreDBInteraction} = require('../../../../../server/admin/dbInteractions');
+const {deleteVectorStore: deleteVectorStoreOpenaiHelper} = require('../../../../../helpers/openAI');
+const {deleteFolder} = require('../../../../../helpers/s3Helpers');
+const {MockResponse} = require('../../../../setupTests');
 
-jest.mock('../../../../server/admin/dbInteractions', () => ({
+jest.mock('../../../../../server/admin/dbInteractions', () => ({
   deleteVectorStore: jest.fn(),
 }));
-jest.mock('../../../../helpers/openAI', () => ({
+jest.mock('../../../../../helpers/openAI', () => ({
   deleteVectorStore: jest.fn(),
 }));
-jest.mock('../../../../helpers/s3Helpers', () => ({
+jest.mock('../../../../../helpers/s3Helpers', () => ({
   deleteFolder: jest.fn(),
 }));
 

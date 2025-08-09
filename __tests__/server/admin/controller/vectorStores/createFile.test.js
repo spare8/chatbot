@@ -1,20 +1,20 @@
 // __tests__/controller/createFile.test.js
-const {MockResponse} = require('../../../setupTests');
+const {MockResponse} = require('../../../../setupTests');
 jest.mock('sanitize-filename');
 const sanitize = require('sanitize-filename');
 
 // Mocks for dependencies
-jest.mock('../../../../helpers/openAI', () => ({
+jest.mock('../../../../../helpers/openAI', () => ({
   uploadFileToOpenAI: jest.fn(),
   addFileToVectorStore: jest.fn(),
 }));
-jest.mock('../../../../helpers/s3Helpers', () => ({createFile: jest.fn()}));
-jest.mock('../../../../server/admin/dbInteractions', () => ({createFile: jest.fn()}));
+jest.mock('../../../../../helpers/s3Helpers', () => ({createFile: jest.fn()}));
+jest.mock('../../../../../server/admin/dbInteractions', () => ({createFile: jest.fn()}));
 
-const {uploadFileToOpenAI, addFileToVectorStore} = require('../../../../helpers/openAI');
-const {createFile: createFileS3Helper} = require('../../../../helpers/s3Helpers');
-const {createFile: createFileDB} = require('../../../../server/admin/dbInteractions');
-const {createFile} = require('../../../../server/admin/controller/createFile');
+const {uploadFileToOpenAI, addFileToVectorStore} = require('../../../../../helpers/openAI');
+const {createFile: createFileS3Helper} = require('../../../../../helpers/s3Helpers');
+const {createFile: createFileDB} = require('../../../../../server/admin/dbInteractions');
+const {createFile} = require('../../../../../server/admin/controller/vectorStores/createFile');
 
 // Fix Date.now for predictable fallback
 const FIXED_TIMESTAMP = 1620000000000;
