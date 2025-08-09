@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-// const {restrictToFrontend} = require('../../helpers/globalMiddlewares');
 const {createAssistant} = require('./controller/assistants/createAssistant');
 const {updateAssistant} = require('./controller/assistants/updateAssistant');
 const {deleteAssistant} = require('./controller/assistants/deleteAssistant');
@@ -35,8 +34,5 @@ router.post('/vectorStore/delete', deleteVectorStore);
 router.post('/vectorStore/createFile', upload.single('file'), createFile);
 router.post('/vectorStore/deleteFile', deleteFile);
 router.post('/vectorStore/getFile', getFile);
-
-// const adminConfigRoutes = require('./controller/envConfigRoutes'); // see below
-// app.use('/config', restrictToFrontend, adminConfigRoutes);
 
 module.exports = router;

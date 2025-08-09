@@ -13,7 +13,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const {ADMIN_SERVER_PORT, MONGODB_URI, NEXT_JS_PUBLIC_URL} = require('../../config/config.js');
-const {applyErrorReporterMiddleware} = require('../../helpers/globalMiddlewares.js');
+const {applyErrorReporterMiddleware} = require('../../helpers/middlewares.js');
 const routes = require('./routes');
 
 const app = express();
