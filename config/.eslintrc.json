@@ -26,7 +26,7 @@
     },
     "overrides": [
       {
-        "files": ["pages/**/*.js", "components/**/*.js"],
+        "files": ["pages/**/*.js", "components/**/*.js", "lib/**/*.js"],
         "parserOptions": {
           "ecmaVersion": 2022,
           "sourceType": "module",
@@ -38,9 +38,10 @@
         },
         "extends": [
           "plugin:react/recommended",
-          "plugin:@next/next/recommended"
+          "plugin:@next/next/recommended",
+          "plugin:react-hooks/recommended"
         ],
-        "plugins": ["react"],
+        "plugins": ["react", "react-hooks"],
         "settings": {
           "react": { "version": "detect" }
         },
