@@ -2,6 +2,7 @@
 import React, {useEffect, useState, useMemo} from 'react';
 import {useRouter} from 'next/router';
 import axios from 'axios';
+import {darkTheme} from '../../../lib/theme';
 import {
   AppBar,
   Toolbar,
@@ -10,7 +11,6 @@ import {
   Tooltip,
   CssBaseline,
   ThemeProvider,
-  createTheme,
   Box,
   Card,
   CardContent,
@@ -40,14 +40,6 @@ import {
 } from '@mui/icons-material';
 
 const API_BASE = 'http://localhost:3000/vectorStore';
-
-const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
-    background: {default: '#121212', paper: '#1d1d1d'},
-    primary: {main: '#90caf9'},
-  },
-});
 
 const bytesToSize = (bytes = 0) => {
   const sizes = ['B', 'KB', 'MB', 'GB'];

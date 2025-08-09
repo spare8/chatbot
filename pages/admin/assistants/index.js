@@ -1,6 +1,7 @@
 
 import React, {useEffect, useState} from 'react';
 import {useRouter} from 'next/router';
+import {darkTheme} from '../../../lib/theme';
 import {
   AppBar,
   Toolbar,
@@ -19,7 +20,6 @@ import {
   TextField,
   Pagination,
   ThemeProvider,
-  createTheme,
   CssBaseline,
   FormControl,
   InputLabel,
@@ -44,14 +44,6 @@ const SERVER_URL = 'http://localhost:3000';
 const API_BASE = `${SERVER_URL}/assistant`;
 const ITEMS_PER_PAGE = 5;
 const MODEL_OPTIONS = ['gpt-3.5-turbo', 'gpt-4'];
-
-const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
-    background: {default: '#121212', paper: '#1d1d1d'},
-    primary: {main: '#90caf9'},
-  },
-});
 
 export default function AssistantsPage() {
   const router = useRouter();
