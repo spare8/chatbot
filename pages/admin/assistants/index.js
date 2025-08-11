@@ -125,8 +125,13 @@ export default function AssistantsPage() {
                   <Typography variant="body2" sx={{bgcolor: 'grey.800', p: 1, borderRadius: 1, mt: 1}}>
                     {a.instructions}
                   </Typography>
-                  <Typography variant="body2" sx={{mt: 1}}>
-                    Temp: {(typeof a.temperature === 'number' ? a.temperature : 0).toFixed(1)}
+                  <Typography
+                    variant="body2"
+                    sx={{bgcolor: 'grey.800', p: 1, borderRadius: 1, mt: 1, display: 'flex',
+                      justifyContent: 'space-between'}}
+                  >
+                    <span>Temperature</span>
+                    <span>{(typeof a.temperature === 'number' ? a.temperature : 0).toFixed(1)}</span>
                   </Typography>
                 </CardContent>
                 <CardActions>
@@ -250,7 +255,16 @@ export default function AssistantsPage() {
               <ListItem><ListItemText primary="Model" secondary={deleteTarget.model} /></ListItem>
               <ListItem><ListItemText primary="Description" secondary={deleteTarget.description} /></ListItem>
               <ListItem><ListItemText primary="Instructions" secondary={deleteTarget.instructions} /></ListItem>
-              <ListItem><ListItemText primary="Temp" secondary={deleteTarget.temperature.toFixed(1)} /></ListItem>
+              <ListItem>
+                <ListItemText
+                  primary="Temp"
+                  secondary={
+                    typeof deleteTarget.temperature === 'number' ?
+                      deleteTarget.temperature.toFixed(1) :
+                      '0.0'
+                  }
+                />
+              </ListItem>
             </List>
           )}
         </DialogContent>
