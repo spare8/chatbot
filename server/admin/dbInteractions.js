@@ -73,10 +73,46 @@ function getAllVectorStores() {
  * @param {Object} data - Fields to update
  * @returns {Promise<Object|null>} - Updated assistant or null
  */
-function updateAssistant({assistantId, name, description, instructions, model, vectorStoreId, temperature}) {
-  return Assistants.findOneAndUpdate({openaiId: assistantId},
-      {name, description, instructions, model, vectorStoreId, temperature}, {new: true});
+// function updateAssistant({assistantId, name, description, instructions, model, vectorStoreId, temperature}) {
+//   return Assistants.findOneAndUpdate({openaiId: assistantId},
+//       {name, description, instructions, model, vectorStoreId, temperature}, {new: true});
+// }
+
+function updateAssistant({
+  assistantId,
+  name,
+  description,
+  instructions,
+  model,
+  vectorStoreId,
+  temperature,
+  tools,
+  toolResources,   // <-- note: DB field is camelCase
+  metadata,
+  isDeleted,
+}) {
+  // Build a $set object with only defined keys
+  const payload = {};
+  const addIfDefined = (k, v) => { if (v !== undefined) payload[k] = v; };
+
+  addIfDefined('name', name);
+  addIfDefined('description', description);
+  addIfDefined('instructions', instructions);
+  addIfDefined('model', model);
+  addIfDefined('vectorStoreId', vectorStoreId);
+  addIfDefined('temperature', temperature);
+  addIfDefined('tools', tools);
+  addIfDefined('toolResources', toolResources); // <-- persists tool resources
+  addIfDefined('metadata', metadata);
+  addIfDefined('isDeleted', isDeleted);
+
+  return Assistants.findOneAndUpdate(
+    { openaiId: assistantId },
+    { $set: payload },
+    { new: true, runValidators: true }
+  );
 }
+
 function updateVectorStore({vectorStoreId, name, description}) {
   return VectorStores.findOneAndUpdate({openaiId: vectorStoreId}, {name, description}, {new: true});
 }

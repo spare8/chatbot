@@ -5,12 +5,13 @@ import {
   Box, Card, CardContent, CardActions, Button, Typography, Dialog,
   DialogTitle, DialogContent, DialogActions, TextField, Pagination,
   FormControl, InputLabel, Select, MenuItem, InputAdornment, IconButton,
-  List, ListItem, ListItemText,
+  List, ListItem, ListItemText, CircularProgress, Alert
 } from '@mui/material';
 import {Edit, Delete, Remove, Add} from '@mui/icons-material';
 
 const SERVER_URL = 'http://localhost:3000';
 const API_BASE = `${SERVER_URL}/assistant`;
+const VS_API_BASE = `${SERVER_URL}/vectorStore`;
 const ITEMS_PER_PAGE = 5;
 const MODEL_OPTIONS = ['gpt-3.5-turbo', 'gpt-4'];
 
@@ -26,6 +27,15 @@ export default function AssistantsPage() {
   const [openDelete, setOpenDelete] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [search, setSearch] = useState('');
+
+  // Link VS dialog state
+  const [openLinkVS, setOpenLinkVS] = useState(false);
+  const [linkTarget, setLinkTarget] = useState(null); // assistant object
+  const [vsList, setVsList] = useState([]);
+  const [vsLoading, setVsLoading] = useState(false);
+  const [vsError, setVsError] = useState('');
+  const [selectedVS, setSelectedVS] = useState('');
+  const [linkSaving, setLinkSaving] = useState(false);
 
   const fetchAssistants = async () => {
     setLoading(true);
@@ -93,6 +103,58 @@ export default function AssistantsPage() {
   const pageCount = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const paged = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
+  // --- Link VS helpers ---
+  const openLinkVSDialog = async (assistant) => {
+    setLinkTarget(assistant);
+    setSelectedVS('');
+    setVsList([]);
+    setVsError('');
+    setOpenLinkVS(true);
+    setVsLoading(true);
+    try {
+      const res = await fetch(`${VS_API_BASE}/list`);
+      if (!res.ok) throw new Error('Failed to fetch vector stores');
+      const data = await res.json();
+      // Normalize list to have id/openaiId/name
+      const norm = Array.isArray(data) ? data.map(vs => ({
+        id: vs.openaiId || vs.id,
+        name: vs.name || vs.title || vs.openaiId || vs.id,
+        raw: vs,
+      })) : [];
+      setVsList(norm);
+    } catch (e) {
+      setVsError(e.message || 'Failed to load vector stores');
+    } finally {
+      setVsLoading(false);
+    }
+  };
+
+  const handleLinkVSSave = async () => {
+    if (!linkTarget?.openaiId || !selectedVS) return;
+    setLinkSaving(true);
+    try {
+      const res = await fetch(`${API_BASE}/link-vs`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+          assistantId: linkTarget.openaiId,
+          vectorStoreId: selectedVS,
+        }),
+      });
+      if (!res.ok) {
+        const t = await res.text();
+        throw new Error(t || 'Failed to link vector store');
+      }
+      setOpenLinkVS(false);
+      setLinkTarget(null);
+      await fetchAssistants(); // refresh to reflect vectorStoreId/tools locally
+    } catch (e) {
+      setVsError(e.message || 'Failed to link vector store');
+    } finally {
+      setLinkSaving(false);
+    }
+  };
+
   return (
     <Box>
       <PageToolbar
@@ -127,8 +189,7 @@ export default function AssistantsPage() {
                   </Typography>
                   <Typography
                     variant="body2"
-                    sx={{bgcolor: 'grey.800', p: 1, borderRadius: 1, mt: 1, display: 'flex',
-                      justifyContent: 'space-between'}}
+                    sx={{bgcolor: 'grey.800', p: 1, borderRadius: 1, mt: 1, display: 'flex', justifyContent: 'space-between'}}
                   >
                     <span>Temperature</span>
                     <span>{(typeof a.temperature === 'number' ? a.temperature : 0).toFixed(1)}</span>
@@ -136,6 +197,7 @@ export default function AssistantsPage() {
                 </CardContent>
                 <CardActions>
                   <Button startIcon={<Edit />} onClick={() => handleEdit(a)}>Edit</Button>
+                  <Button color="primary" onClick={() => openLinkVSDialog(a)}>Link VS</Button>
                   <Button startIcon={<Delete />} color="error" onClick={() => handleDeleteClick(a)}>Delete</Button>
                 </CardActions>
               </Card>
@@ -259,9 +321,9 @@ export default function AssistantsPage() {
                 <ListItemText
                   primary="Temp"
                   secondary={
-                    typeof deleteTarget.temperature === 'number' ?
-                      deleteTarget.temperature.toFixed(1) :
-                      '0.0'
+                    typeof deleteTarget.temperature === 'number'
+                      ? deleteTarget.temperature.toFixed(1)
+                      : '0.0'
                   }
                 />
               </ListItem>
@@ -271,6 +333,49 @@ export default function AssistantsPage() {
         <DialogActions>
           <Button onClick={() => setOpenDelete(false)}>Cancel</Button>
           <Button onClick={confirmDelete} variant="contained" color="error">Delete</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Link Vector Store Dialog */}
+      <Dialog open={openLinkVS} onClose={() => setOpenLinkVS(false)} fullWidth maxWidth="sm">
+        <DialogTitle>Link Vector Store</DialogTitle>
+        <DialogContent sx={{display: 'flex', flexDirection: 'column', gap: 2}}>
+          <Typography variant="body2">
+            Assistant: <strong>{linkTarget?.name || linkTarget?.openaiId || ''}</strong>
+          </Typography>
+
+          {vsError && <Alert severity="error">{vsError}</Alert>}
+
+          {vsLoading ? (
+            <Box sx={{display: 'flex', justifyContent: 'center', py: 2}}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <FormControl fullWidth>
+              <InputLabel>Vector Store</InputLabel>
+              <Select
+                label="Vector Store"
+                value={selectedVS}
+                onChange={(e) => setSelectedVS(e.target.value)}
+              >
+                {vsList.map(vs => (
+                  <MenuItem key={vs.id} value={vs.id}>
+                    {vs.name} ({vs.id})
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenLinkVS(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            disabled={!selectedVS || linkSaving}
+            onClick={handleLinkVSSave}
+          >
+            {linkSaving ? 'Linking…' : 'Link'}
+          </Button>
         </DialogActions>
       </Dialog>
     </Box>
