@@ -6,6 +6,8 @@ const {createAssistant} = require('./controller/assistants/createAssistant');
 const {updateAssistant} = require('./controller/assistants/updateAssistant');
 const {deleteAssistant} = require('./controller/assistants/deleteAssistant');
 const {listAssistants} = require('./controller/assistants/listAssistants');
+const {linkAssistantToVS} = require('./controller/assistants/linkAssistantToVS');
+const {unlinkAssistantFromVS} = require('./controller/assistants/unlinkAssistantfromVS');
 const {createVectorStore} = require('./controller/vectorStores/createVectorStore');
 const {listVectorStores} = require('./controller/vectorStores/listVectorStores');
 const {deleteVectorStore} = require('./controller/vectorStores/deleteVectorStore');
@@ -25,6 +27,8 @@ router.post('/assistant/create', createAssistant);
 router.post('/assistant/update', updateAssistant);
 router.post('/assistant/delete', deleteAssistant);
 router.get('/assistant/list', listAssistants);
+router.post('/assistant/link-vs', linkAssistantToVS);
+router.post('/assistant/unlink-vs', unlinkAssistantFromVS);
 
 // Vector Store Management
 router.post('/vectorStore/create', createVectorStore);
@@ -35,6 +39,7 @@ router.post('/vectorStore/delete', deleteVectorStore);
 router.post('/vectorStore/createFile', upload.single('file'), createFile);
 router.post('/vectorStore/deleteFile', deleteFile);
 router.post('/vectorStore/getFile', getFile);
+
 
 // const adminConfigRoutes = require('./controller/envConfigRoutes'); // see below
 // app.use('/config', restrictToFrontend, adminConfigRoutes);

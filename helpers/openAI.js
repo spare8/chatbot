@@ -878,7 +878,8 @@ async function deleteThread(threadId) {
   }
 }
 
-async function modifyAssistant2({assistantId, name, instructions, description = '', tools = [], model = 'gpt-3.5-turbo', tool_resources = {}, metadata = {}}) {
+async function modifyAssistant2({assistantId, name, instructions, description = '', tools = [], 
+  model = 'gpt-3.5-turbo', tool_resources = {}, metadata = {}}) {
   if (!assistantId) {
     throw new Error('assistantId is required');
   }
@@ -911,7 +912,7 @@ async function modifyAssistant2({assistantId, name, instructions, description = 
 }
 
 
-async function linkVectorStore(assistantId, vectorStoreId) {
+async function linkVectorStore({assistantId, vectorStoreId}) {
   if (!assistantId || !vectorStoreId) {
     throw new Error('Both assistantId and vectorStoreId are required');
   }
