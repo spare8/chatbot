@@ -74,6 +74,29 @@ export default function VectorStorePage() {
     fetchStores();
   }, []);
 
+  // NEW: auto-fill the search bar from ?selected=
+  useEffect(() => {
+    const sel = router.query?.selected;
+    if (!sel || !stores.length) {
+      return;
+    }
+
+    const selectedId = Array.isArray(sel) ? sel[0] : sel;
+    const vs = stores.find(
+        (s) =>
+          s.openaiId === selectedId ||
+        s.id === selectedId ||
+        s.name === selectedId,
+    );
+
+    if (vs) {
+      const target = vs.name || vs.openaiId || selectedId;
+      setSearch((prev) => (prev === target ? prev : target));
+    } else {
+      setSearch((prev) => (prev === selectedId ? prev : selectedId));
+    }
+  }, [router.query?.selected, stores]);
+
   const filtered = useMemo(() => {
     if (!search.trim()) {
       return stores;
@@ -193,7 +216,9 @@ export default function VectorStorePage() {
                     <Chip label={`Size: ${vs.maxChunkSize}`} size="small" />
                     <Chip label={`Overlap: ${vs.maxChunkOverlap}`} size="small" />
                     <Chip
-                      label={`${vs.files?.length || 0} file${(vs.files?.length || 0) !== 1 ? 's' : ''}`}
+                      label={`${vs.files?.length || 0} file${
+                        (vs.files?.length || 0) !== 1 ? 's' : ''
+                      }`}
                       size="small"
                     />
                   </Box>
@@ -274,7 +299,10 @@ export default function VectorStorePage() {
                   </ListItem>
                 ))}
                 {activeVS.files?.length === 0 && (
-                  <Typography variant="body2" sx={{color: 'grey.500', textAlign: 'center'}}>
+                  <Typography
+                    variant="body2"
+                    sx={{color: 'grey.500', textAlign: 'center'}}
+                  >
                     No files yet
                   </Typography>
                 )}
@@ -286,14 +314,40 @@ export default function VectorStorePage() {
               type="file"
               disabled={loading}
               onChange={(e) =>
-                setFileInputs((p) => ({...p, [activeVS.openaiId]: e.target.files[0]}))
+                setFileInputs((p) => ({
+                  ...p,
+                  [activeVS.openaiId]: e.target.files[0],
+                }))
               }
             />
             <Button
               startIcon={<UploadIcon />}
               variant="contained"
               sx={{mt: 1}}
-              onClick={() => handleFileUpload(activeVS)}
+              onClick={() => {
+                const vs = activeVS;
+                const file = fileInputs[vs.openaiId];
+                if (!file) {
+                  return;
+                }
+                setLoading(true);
+                const fd = new FormData();
+                fd.append('file', file);
+                fd.append('vectorStoreId', vs.openaiId);
+                axios
+                    .post(`${API_BASE}/createFile`, fd, {
+                      headers: {'Content-Type': 'multipart/form-data'},
+                    })
+                    .then(async () => {
+                      setFileInputs((p) => ({...p, [vs.openaiId]: null}));
+                      await fetchStores();
+                      setDrawerOpen(false);
+                    })
+                    .catch((err) => {
+                      console.error('Error uploading file:', err);
+                    })
+                    .finally(() => setLoading(false));
+              }}
               disabled={loading || !fileInputs[activeVS.openaiId]}
             >
               Upload
@@ -303,20 +357,31 @@ export default function VectorStorePage() {
       </Drawer>
 
       {/* Create Vector Store Dialog */}
-      <Dialog open={createDlg} onClose={() => !loading && setCreateDlg(false)} fullWidth maxWidth="sm">
+      <Dialog
+        open={createDlg}
+        onClose={() => !loading && setCreateDlg(false)}
+        fullWidth
+        maxWidth="sm"
+      >
         <DialogTitle>Create Vector Store</DialogTitle>
-        <DialogContent sx={{display: 'flex', flexDirection: 'column', gap: 2, pt: 2}}>
+        <DialogContent
+          sx={{display: 'flex', flexDirection: 'column', gap: 2, pt: 2}}
+        >
           <TextField
             label="Name"
             value={newVS.name}
-            onChange={(e) => setNewVS((p) => ({...p, name: e.target.value}))}
+            onChange={(e) =>
+              setNewVS((p) => ({...p, name: e.target.value}))
+            }
             fullWidth
             disabled={loading}
           />
           <TextField
             label="Description"
             value={newVS.description}
-            onChange={(e) => setNewVS((p) => ({...p, description: e.target.value}))}
+            onChange={(e) =>
+              setNewVS((p) => ({...p, description: e.target.value}))
+            }
             fullWidth
             multiline
             disabled={loading}
@@ -325,7 +390,12 @@ export default function VectorStorePage() {
             label="Max Chunk Size"
             type="number"
             value={newVS.maxChunkSize}
-            onChange={(e) => setNewVS((p) => ({...p, maxChunkSize: Number(e.target.value)}))}
+            onChange={(e) =>
+              setNewVS((p) => ({
+                ...p,
+                maxChunkSize: Number(e.target.value),
+              }))
+            }
             fullWidth
             disabled={loading}
           />
@@ -333,20 +403,34 @@ export default function VectorStorePage() {
             label="Chunk Overlap"
             type="number"
             value={newVS.maxChunkOverlap}
-            onChange={(e) => setNewVS((p) => ({...p, maxChunkOverlap: Number(e.target.value)}))}
+            onChange={(e) =>
+              setNewVS((p) => ({
+                ...p,
+                maxChunkOverlap: Number(e.target.value),
+              }))
+            }
             fullWidth
             disabled={loading}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setCreateDlg(false)} disabled={loading}>Cancel</Button>
-          <Button onClick={handleCreateVS} variant="contained" disabled={loading}>Create</Button>
+          <Button onClick={() => setCreateDlg(false)} disabled={loading}>
+            Cancel
+          </Button>
+          <Button onClick={handleCreateVS} variant="contained" disabled={loading}>
+            Create
+          </Button>
         </DialogActions>
       </Dialog>
 
       {/* Delete Confirmation Dialog */}
       {deleteInfo && (
-        <Dialog open onClose={() => !loading && setDeleteInfo(null)} fullWidth maxWidth="sm">
+        <Dialog
+          open
+          onClose={() => !loading && setDeleteInfo(null)}
+          fullWidth
+          maxWidth="sm"
+        >
           <DialogTitle>Confirm Delete</DialogTitle>
           <DialogContent>
             {deleteInfo.type === 'vs' ? (
@@ -360,16 +444,21 @@ export default function VectorStorePage() {
               </>
             ) : (
               <Typography>
-                Delete file <b>{deleteInfo.data.file.fileName}</b> from <b>{deleteInfo.data.vs.name}</b>?
+                Delete file <b>{deleteInfo.data.file.fileName}</b> from{' '}
+                <b>{deleteInfo.data.vs.name}</b>?
               </Typography>
             )}
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => setDeleteInfo(null)} disabled={loading}>Cancel</Button>
+            <Button onClick={() => setDeleteInfo(null)} disabled={loading}>
+              Cancel
+            </Button>
             <Button
               color="error"
               variant="contained"
-              onClick={deleteInfo.type === 'vs' ? confirmDeleteVS : confirmDeleteFile}
+              onClick={
+                deleteInfo.type === 'vs' ? confirmDeleteVS : confirmDeleteFile
+              }
               disabled={loading}
             >
               Delete
