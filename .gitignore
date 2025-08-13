@@ -1,8 +1,5 @@
 node_modules/
-.env
-.env_dev
-.env_local
-.env_prod
+.env*
 rawFiles/
 knowledgeBank/
 coverage-summary.json

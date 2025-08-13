@@ -1,47 +1,48 @@
 // server/index.js
 
-const path = require('path');
-const {verifyConfig} = require('../../helpers/verifyConfig.js');
-require('dotenv').config({
-  path: path.resolve(__dirname, '../../.env'),
-});
-
-// IIFE to catch incorrect config setup, ie any null or undefined values
-(() => verifyConfig())();
 
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const {ADMIN_SERVER_PORT, MONGODB_URI, NEXT_JS_PUBLIC_URL} = require('../../config/config.js');
-const {applyErrorReporterMiddleware} = require('../../helpers/middlewares.js');
+const {MONGODB_URI, CLIENT_URL} = require('../../config/config.js');
+const {applyErrorReporterMiddleware, restrictToFrontendMiddleware,
+  setUpRequiredMiddleware} = require('../../helpers/middlewares');
 const routes = require('./routes');
+const configRoutes = require('./configRoutes');
+const {getConfigStatus} = require('../../helpers/configStatus');
+
+const {ensureAdminToken} = require('../../helpers/ensureAdminToken');
+ensureAdminToken();
 
 const app = express();
 
 app.use(cors({
-  origin: NEXT_JS_PUBLIC_URL,
+  origin: CLIENT_URL,
   credentials: true,
 }));
 
 
 app.use(express.json());
-app.use('/', routes);
+app.use('/config', restrictToFrontendMiddleware, configRoutes);
+app.use('/', setUpRequiredMiddleware, routes);
 applyErrorReporterMiddleware(app);
 
 // --- connect to MongoDB ---
-mongoose
-    .connect(MONGODB_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    })
-    .then(() => console.log('✅ MongoDB connected'))
-    .catch((err) => {
-      console.error('❌ MongoDB connection error:', err);
-      /* eslint-disable no-process-exit */
-      process.exit(1);
-    });
+const {ok} = getConfigStatus();
+if (ok) {
+  mongoose
+      .connect(MONGODB_URI, {useNewUrlParser: true, useUnifiedTopology: true})
+      .then(() => console.log('✅ MongoDB connected'))
+      .catch((err) => {
+        console.error('❌ MongoDB connection error:', err);
+        /* eslint-disable no-process-exit */
+        process.exit(1);
+      });
+} else {
+  console.warn('⚠️  Server started in SETUP MODE (DB not connected).');
+}
 
-const PORT = ADMIN_SERVER_PORT || 3000;
+const PORT = 3000;
 app.listen(PORT, () =>
   console.log(`🚀 Express server running on http://localhost:${PORT}`),
 );

@@ -1,10 +1,9 @@
-// components/SideNav.js
 import * as React from 'react';
 import NextLink from 'next/link';
 import {useRouter} from 'next/router';
 import {
   Drawer, Toolbar, List, ListItemButton, ListItemIcon, ListItemText,
-  Divider, Box, Collapse,
+  Divider, Box, Collapse, Chip,
 } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import QuestionMarkIcon from '@mui/icons-material/QuestionMark';
@@ -14,8 +13,9 @@ import ForumIcon from '@mui/icons-material/Forum';
 import ExpandLess from '@mui/icons-material/ExpandLess';
 import ExpandMore from '@mui/icons-material/ExpandMore';
 import PropTypes from 'prop-types';
+import {ConfigStatusContext} from '../lib/configStatusContext';
 
-const drawerWidth = 240;
+export const drawerWidth = 240;
 
 // Hierarchical nav config
 const navItems = [
@@ -34,6 +34,8 @@ const navItems = [
 
 export default function SideNav({variant = 'permanent', open, onClose}) {
   const router = useRouter();
+  const {ok} = React.useContext(ConfigStatusContext);
+  const disableOthers = !ok;
 
   const isActive = (href) =>
     router.pathname === href || router.pathname.startsWith(`${href}/`);
@@ -41,7 +43,6 @@ export default function SideNav({variant = 'permanent', open, onClose}) {
   // Track which parent sections are open
   const [openSections, setOpenSections] = React.useState({});
   React.useEffect(() => {
-    // auto-open any section whose child matches the current route
     const next = {};
     for (const item of navItems) {
       if (item.children?.length) {
@@ -64,17 +65,40 @@ export default function SideNav({variant = 'permanent', open, onClose}) {
           const hasChildren = !!item.children?.length;
 
           if (!hasChildren) {
-            // Simple leaf item -> direct navigation
+            const isEnabledWithoutConfig = ['/config', '/how-to-use'].includes(item.href);
+            const isConfig = item.href === '/config';
+            const disabled = disableOthers && !isEnabledWithoutConfig;
+
+            const Component = disabled ? 'button' : NextLink;
+            const hrefProp = disabled ? undefined : item.href;
+
             return (
               <ListItemButton
                 key={item.href}
-                component={NextLink}
-                href={item.href}
+                component={Component}
+                href={hrefProp}
                 selected={isActive(item.href)}
                 onClick={onClose}
+                disabled={disabled}
               >
                 <ListItemIcon>{item.icon}</ListItemIcon>
-                <ListItemText primary={item.label} />
+                <ListItemText
+                  primary={
+                    isConfig && !ok ? (
+                      <>
+                        {item.label}
+                        <Chip
+                          label="Pending"
+                          size="small"
+                          color="warning"
+                          sx={{ml: 1}}
+                        />
+                      </>
+                    ) : (
+                      item.label
+                    )
+                  }
+                />
               </ListItemButton>
             );
           }
@@ -85,10 +109,7 @@ export default function SideNav({variant = 'permanent', open, onClose}) {
 
           return (
             <React.Fragment key={item.label}>
-              <ListItemButton
-                onClick={() => toggleSection(item.label)}
-                selected={parentActive}
-              >
+              <ListItemButton onClick={() => toggleSection(item.label)} selected={parentActive}>
                 <ListItemIcon>{item.icon}</ListItemIcon>
                 <ListItemText primary={item.label} />
                 {openState ? <ExpandLess /> : <ExpandMore />}
@@ -96,19 +117,26 @@ export default function SideNav({variant = 'permanent', open, onClose}) {
 
               <Collapse in={openState} timeout="auto" unmountOnExit>
                 <List component="div" disablePadding>
-                  {item.children.map((child) => (
-                    <ListItemButton
-                      key={child.href}
-                      component={NextLink}
-                      href={child.href}
-                      selected={isActive(child.href)}
-                      onClick={onClose}
-                      sx={{pl: 4}}
-                    >
-                      <ListItemIcon>{child.icon}</ListItemIcon>
-                      <ListItemText primary={child.label} />
-                    </ListItemButton>
-                  ))}
+                  {item.children.map((child) => {
+                    const disabled = disableOthers; // all admin children disabled until configured
+                    const Component = disabled ? 'button' : NextLink;
+                    const hrefProp = disabled ? undefined : child.href;
+
+                    return (
+                      <ListItemButton
+                        key={child.href}
+                        component={Component}
+                        href={hrefProp}
+                        selected={isActive(child.href)}
+                        onClick={onClose}
+                        disabled={disabled}
+                        sx={{pl: 4}}
+                      >
+                        <ListItemIcon>{child.icon}</ListItemIcon>
+                        <ListItemText primary={child.label} />
+                      </ListItemButton>
+                    );
+                  })}
                 </List>
               </Collapse>
             </React.Fragment>
@@ -136,8 +164,6 @@ export default function SideNav({variant = 'permanent', open, onClose}) {
     </Drawer>
   );
 }
-
-export {drawerWidth};
 
 SideNav.propTypes = {
   variant: PropTypes.oneOf(['permanent', 'temporary']),
