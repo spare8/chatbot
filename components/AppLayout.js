@@ -18,32 +18,50 @@ export default function AppLayout({title = 'Chatbot', children}) {
     <Box sx={{display: 'flex', minHeight: '100vh'}}>
       <CssBaseline />
 
-      {/* AppBar */}
-      <AppBar position="fixed" color="default" sx={{backgroundColor: 'background.paper'}}>
+      {/* AppBar — ensure it's ABOVE the drawer, and sized/shifted on desktop */}
+      <AppBar
+        position="fixed"
+        color="default"
+        sx={{
+          zIndex: (t) => t.zIndex.drawer + 1, // <-- put AppBar above Drawer
+          backgroundColor: 'background.paper',
+          width: {md: `calc(100% - ${drawerWidth}px)`},
+          ml: {md: `${drawerWidth}px`},
+        }}
+      >
         <Toolbar>
           {!mdUp && (
             <IconButton color="inherit" edge="start" onClick={handleToggle} sx={{mr: 1}}>
               <MenuIcon />
             </IconButton>
           )}
-          <Typography variant="h6" noWrap component="div">{title}</Typography>
+          <Typography variant="h6" noWrap component="div">
+            {title}
+          </Typography>
         </Toolbar>
       </AppBar>
 
       {/* Side nav: temporary on mobile, permanent on desktop */}
-      {!mdUp && <SideNav variant="temporary" open={mobileOpen} onClose={handleToggle} />}
+      {!mdUp && (
+        <SideNav
+          variant="temporary"
+          open={mobileOpen}
+          onClose={handleToggle}
+        />
+      )}
       {mdUp && <SideNav variant="permanent" />}
 
-      {/* Main content */}
+      {/* Main content — offset for AppBar and reserve space for the drawer on desktop */}
       <Box
         component="main"
         sx={{
           flexGrow: 1,
           p: 2,
-          mt: 8, // offset for AppBar
-          ...(mdUp ? {ml: `${drawerWidth}px`} : {}),
+          ml: {md: `${drawerWidth}px`}, // <-- reserve space so drawer doesn't cover content
         }}
       >
+        {/* Use a Toolbar spacer to offset the fixed AppBar height */}
+        <Toolbar />
         {children}
       </Box>
     </Box>

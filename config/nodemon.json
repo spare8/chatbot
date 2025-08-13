@@ -1,0 +1,6 @@
+{
+  "watch": [".env", "server", "helpers", "config"],
+  "ext": "js,json,env",
+  "ignore": [".next", "pages", "components", "node_modules"],
+  "exec": "node server/admin/index.js"
+}

@@ -4,14 +4,17 @@ import {ThemeProvider} from '@mui/material/styles';
 import {darkTheme} from '../lib/theme';
 import AppLayout from '../components/AppLayout';
 import PropTypes from 'prop-types';
+import {ConfigStatusProvider} from '../lib/configStatusContext';
 
 export default function MyApp({Component, pageProps}) {
   const title = Component.title || 'Chatbot';
   return (
     <ThemeProvider theme={darkTheme}>
-      <AppLayout title={title}>
-        <Component {...pageProps} />
-      </AppLayout>
+      <ConfigStatusProvider>
+        <AppLayout title={title}>
+          <Component {...pageProps} />
+        </AppLayout>
+      </ConfigStatusProvider>
     </ThemeProvider>
   );
 }

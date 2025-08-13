@@ -1,4 +1,4 @@
-// __tests__/globalMiddlewares.test.js
+// __tests__/middlewares.test.js
 
 // 1. Mock out the errorReporter so we can verify calls without side‐effects
 jest.mock('../../helpers/errorReporter', () => ({
@@ -6,9 +6,9 @@ jest.mock('../../helpers/errorReporter', () => ({
 }));
 
 const {errorReporter} = require('../../helpers/errorReporter');
-const {applyErrorReporterMiddleware} = require('../../helpers/globalMiddlewares');
+const {applyErrorReporterMiddleware} = require('../../helpers/middlewares');
 
-describe('globalMiddlewares', () => {
+describe('middlewares', () => {
   let app; let handler1; let handler2;
 
   beforeEach(() => {

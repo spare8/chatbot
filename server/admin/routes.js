@@ -1,7 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-// const {restrictToFrontend} = require('../../helpers/globalMiddlewares');
 const {createAssistant} = require('./controller/assistants/createAssistant');
 const {updateAssistant} = require('./controller/assistants/updateAssistant');
 const {deleteAssistant} = require('./controller/assistants/deleteAssistant');

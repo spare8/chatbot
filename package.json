@@ -21,11 +21,11 @@
     "ass-create": "node scripts/assistantChat.js support-bot",
     "ass-sync": "node scripts/assistantSync.js",
     "ass-validate": "node scripts/assistantValidate.js",
-    "dev:admin": "concurrently \"npm run dev:admin-page\" \"npm run dev:admin-server\"",
-    "dev:admin-page": "next dev --port 3001",
-    "build:admin-page": "next build",
-    "start:admin-page": "next start",
-    "dev:admin-server": "nodemon server/admin/index.js"
+    "dev:server": "nodemon --config config/nodemon.json",
+    "dev:web": "next dev --port 3001",
+    "dev": "concurrently -k -n SERVER,WEB -c cyan,magenta \"npm:dev:server\" \"npm:dev:web\"",
+    "build:web": "next build",
+    "start:web": "next start"
   },
   "repository": {
     "type": "git",
@@ -47,7 +47,9 @@
     "content-disposition": "^1.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.2.0",
+    "envfile": "^7.1.0",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.0.1",
     "form-data": "^4.0.4",
     "mongoose": "^8.17.0",
     "multer": "^2.0.2",
