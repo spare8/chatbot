@@ -2,7 +2,11 @@
 const Assistants = require('../../models/assistant');
 const VectorStores = require('../../models/vectorStore');
 const VSFiles = require('../../models/VSFile');
+const Thread = require('../../models/thread');
+const Message = require('../../models/message');
+const mongoose = require('mongoose');
 
+const OID = mongoose.Types.ObjectId;
 /**
  * Create a new assistant
  * @param {Object} data - Assistant properties
@@ -87,13 +91,17 @@ function updateAssistant({
   vectorStoreId,
   temperature,
   tools,
-  toolResources,   // <-- note: DB field is camelCase
+  toolResources, // <-- note: DB field is camelCase
   metadata,
   isDeleted,
 }) {
   // Build a $set object with only defined keys
   const payload = {};
-  const addIfDefined = (k, v) => { if (v !== undefined) payload[k] = v; };
+  const addIfDefined = (k, v) => {
+    if (v !== undefined) {
+      payload[k] = v;
+    }
+  };
 
   addIfDefined('name', name);
   addIfDefined('description', description);
@@ -107,9 +115,9 @@ function updateAssistant({
   addIfDefined('isDeleted', isDeleted);
 
   return Assistants.findOneAndUpdate(
-    { openaiId: assistantId },
-    { $set: payload },
-    { new: true, runValidators: true }
+      {openaiId: assistantId},
+      {$set: payload},
+      {new: true, runValidators: true},
   );
 }
 
@@ -135,6 +143,303 @@ async function deleteFile({vectorStoreId, fileId}) {
   ]);
 }
 
+
+/* =========================
+ * THREADS (DB-ONLY)
+ * ========================= */
+
+/** Create a Thread (DB-only) */
+function createThread({
+  roomId,
+  assistantOpenAIId,
+  userId = null,
+  threadOpenAIId = null,
+  lastMessageAt = new Date(),
+  messages = [],
+}) {
+  if (!roomId) {
+    const e = new Error('roomId is required'); e.status = 400; throw e;
+  }
+  if (!assistantOpenAIId) {
+    const e = new Error('assistantOpenAIId is required'); e.status = 400; throw e;
+  }
+
+  return Thread.create({
+    roomId,
+    assistantOpenAIId,
+    userId,
+    threadOpenAIId,
+    lastMessageAt,
+    messages: Array.isArray(messages) ? messages : [],
+  });
+}
+
+/** Fetch a thread by roomId (used for routing/idempotency) */
+function getThreadByRoomId({roomId}) {
+  if (!roomId) {
+    const e = new Error('roomId is required'); e.status = 400; throw e;
+  }
+  return Thread.findOne({roomId});
+}
+
+/** Fetch a thread by OpenAI thread id */
+function getThreadByOpenAIId({threadOpenAIId}) {
+  if (!threadOpenAIId) {
+    const e = new Error('threadOpenAIId is required'); e.status = 400; throw e;
+  }
+  return Thread.findOne({threadOpenAIId});
+}
+
+/** List threads for a user (cursor pagination by _id) */
+async function listThreadsForUser({userId, limit = 20, cursor = null}) {
+  if (!userId) {
+    const e = new Error('userId is required'); e.status = 400; throw e;
+  }
+
+  const query = {userId};
+  if (cursor) {
+    if (!OID.isValid(cursor)) {
+      const e = new Error('Invalid cursor'); e.status = 400; throw e;
+    }
+    query._id = {$lt: new OID(cursor)};
+  }
+
+  const rows = await Thread.find(query)
+      .sort({_id: -1})
+      .limit(Number(limit));
+
+  const nextCursor = rows.length ? rows[rows.length - 1]._id : null;
+  return {threads: rows, nextCursor};
+}
+
+/** Archive / unarchive a thread in DB */
+function archiveThread({threadId, archived = true}) {
+  if (!threadId) {
+    const e = new Error('threadId is required'); e.status = 400; throw e;
+  }
+  if (!OID.isValid(threadId)) {
+    const e = new Error('Invalid threadId'); e.status = 400; throw e;
+  }
+
+  return Thread.findByIdAndUpdate(
+      threadId,
+      {$set: {archived}},
+      {new: true},
+  );
+}
+
+/** Update title and/or metadata */
+function updateThreadMeta({threadId, title, metadata}) {
+  if (!threadId) {
+    const e = new Error('threadId is required'); e.status = 400; throw e;
+  }
+  if (!OID.isValid(threadId)) {
+    const e = new Error('Invalid threadId'); e.status = 400; throw e;
+  }
+
+  const $set = {};
+  if (typeof title !== 'undefined') {
+    $set.title = title;
+  }
+  if (typeof metadata !== 'undefined') {
+    $set.metadata = metadata;
+  }
+  if (Object.keys($set).length === 0) {
+    const e = new Error('Nothing to update'); e.status = 400; throw e;
+  }
+
+  return Thread.findByIdAndUpdate(threadId, {$set}, {new: true, runValidators: true});
+}
+
+/** Update lastMessageAt explicitly */
+function updateLastMessageAt({threadId, when = new Date()}) {
+  if (!threadId) {
+    const e = new Error('threadId is required'); e.status = 400; throw e;
+  }
+  if (!OID.isValid(threadId)) {
+    const e = new Error('Invalid threadId'); e.status = 400; throw e;
+  }
+
+  return Thread.findByIdAndUpdate(threadId, {$set: {lastMessageAt: when}}, {new: true});
+}
+
+/** Hard delete by DB id */
+function deleteThreadById({threadId}) {
+  if (!threadId) {
+    const e = new Error('threadId is required'); e.status = 400; throw e;
+  }
+  if (!OID.isValid(threadId)) {
+    const e = new Error('Invalid threadId'); e.status = 400; throw e;
+  }
+
+  return Thread.findByIdAndDelete(threadId);
+}
+
+/** Hard delete by OpenAI thread id */
+function deleteThreadByOpenAIId({threadOpenAIId}) {
+  if (!threadOpenAIId) {
+    const e = new Error('threadOpenAIId is required'); e.status = 400; throw e;
+  }
+  return Thread.findOneAndDelete({threadOpenAIId});
+}
+
+/* =========================
+ * MESSAGES (DB-ONLY)
+ * ========================= */
+
+/** Save a user message and attach it to the thread */
+async function saveUserMessage({threadId, content, attachments = [], userId = null}) {
+  if (!threadId) {
+    const e = new Error('threadId is required'); e.status = 400; throw e;
+  }
+  if (!OID.isValid(threadId)) {
+    const e = new Error('Invalid threadId'); e.status = 400; throw e;
+  }
+  if (!((typeof content === 'string') || content === '')) {
+    const e = new Error('content is required'); e.status = 400; throw e;
+  }
+
+  const thread = await Thread.findById(threadId).select('_id');
+  if (!thread) {
+    const e = new Error('Thread not found'); e.status = 404; throw e;
+  }
+
+  const msg = await Message.create({
+    threadId,
+    role: 'user',
+    content,
+    userId,
+    assistantId: null,
+    attachments: Array.isArray(attachments) ? attachments : [],
+    status: 'completed',
+  });
+
+  await Thread.findByIdAndUpdate(
+      threadId,
+      {
+        $push: {messages: msg._id},
+        $set: {lastMessageAt: new Date()},
+      },
+      {new: true},
+  );
+
+  return msg;
+}
+
+/** Save an assistant message and attach it to the thread */
+async function saveAssistantMessage({
+  threadId,
+  content,
+  assistantId = null,
+  runId = null,
+  usage = undefined,
+  status = 'completed',
+}) {
+  if (!threadId) {
+    const e = new Error('threadId is required'); e.status = 400; throw e;
+  }
+  if (!OID.isValid(threadId)) {
+    const e = new Error('Invalid threadId'); e.status = 400; throw e;
+  }
+  if (!((typeof content === 'string') || content === '')) {
+    const e = new Error('content is required'); e.status = 400; throw e;
+  }
+
+  const thread = await Thread.findById(threadId).select('_id');
+  if (!thread) {
+    const e = new Error('Thread not found'); e.status = 404; throw e;
+  }
+
+  const msg = await Message.create({
+    threadId,
+    role: 'assistant',
+    content,
+    userId: null,
+    assistantId,
+    runId,
+    usage,
+    status,
+  });
+
+  await Thread.findByIdAndUpdate(
+      threadId,
+      {
+        $push: {messages: msg._id},
+        $set: {lastMessageAt: new Date()},
+      },
+      {new: true},
+  );
+
+  return msg;
+}
+
+/** Mark a message as errored */
+function markMessageError({messageId, error}) {
+  if (!messageId) {
+    const e = new Error('messageId is required'); e.status = 400; throw e;
+  }
+  if (!OID.isValid(messageId)) {
+    const e = new Error('Invalid messageId'); e.status = 400; throw e;
+  }
+
+  return Message.findByIdAndUpdate(
+      messageId,
+      {$set: {status: 'error', error}},
+      {new: true},
+  );
+}
+
+/** Get paginated history by roomId (ascending for display) */
+async function getHistoryByRoomId({roomId, beforeId = null, limit = 50}) {
+  if (!roomId) {
+    const e = new Error('roomId is required'); e.status = 400; throw e;
+  }
+
+  const thread = await Thread.findOne({roomId}).lean();
+  if (!thread) {
+    const e = new Error('Thread not found'); e.status = 404; throw e;
+  }
+
+  const q = {threadId: thread._id};
+  if (beforeId) {
+    if (!OID.isValid(beforeId)) {
+      const e = new Error('Invalid beforeId'); e.status = 400; throw e;
+    }
+    q._id = {$lt: new OID(beforeId)};
+  }
+
+  const docs = await Message.find(q).sort({_id: -1}).limit(Number(limit));
+  const messages = docs.reverse();
+  const nextCursor = docs.length ? String(docs[docs.length - 1]._id) : null;
+
+  return {thread, messages, nextCursor};
+}
+
+/** Get paginated messages by threadId (ascending for display) */
+async function getMessagesByThreadId({threadId, beforeId = null, limit = 50}) {
+  if (!threadId) {
+    const e = new Error('threadId is required'); e.status = 400; throw e;
+  }
+  if (!OID.isValid(threadId)) {
+    const e = new Error('Invalid threadId'); e.status = 400; throw e;
+  }
+
+  const q = {threadId: new OID(threadId)};
+  if (beforeId) {
+    if (!OID.isValid(beforeId)) {
+      const e = new Error('Invalid beforeId'); e.status = 400; throw e;
+    }
+    q._id = {$lt: new OID(beforeId)};
+  }
+
+  const docs = await Message.find(q).sort({_id: -1}).limit(Number(limit));
+  const messages = docs.reverse();
+  const nextCursor = docs.length ? String(docs[docs.length - 1]._id) : null;
+
+  return {messages, nextCursor};
+}
+
+
 module.exports = {
   createAssistant,
   getAssistantById,
@@ -148,4 +453,22 @@ module.exports = {
   getVectorStoreById,
   createFile,
   deleteFile,
+
+  // thread functions
+  createThread,
+  getThreadByRoomId,
+  getThreadByOpenAIId,
+  listThreadsForUser,
+  archiveThread,
+  updateThreadMeta,
+  updateLastMessageAt,
+  deleteThreadById,
+  deleteThreadByOpenAIId,
+
+  // Messages
+  saveUserMessage,
+  saveAssistantMessage,
+  markMessageError,
+  getHistoryByRoomId,
+  getMessagesByThreadId,
 };

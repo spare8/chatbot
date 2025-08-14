@@ -2,9 +2,10 @@ const fs = require('fs');
 const path = require('path');
 const {createVectorStore, deleteFileById, deleteFileFromVectorStore, addFileToVectorStore,
   uploadFileToOpenAI, deleteVectorStore} = require('./openAI');
-const crypto = require('crypto');
+const crypto = require('crypto');// this is used to randomise
 
 const KNOWLEDGE_BANK_FOLDER_NAME = 'knowledgebank';
+
 const VS_CONFIG_PATH = path.join(__dirname, '..', 'config', 'VSConfig.json');
 
 function isVSInConfig({VSName}) {
